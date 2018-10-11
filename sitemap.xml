@@ -3,58 +3,58 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://example.com/blog/2018/example-post/</loc>
+    <loc>https://hqhs.github.io/blog/2018/example-post/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://example.com/about/</loc>
+    <loc>https://hqhs.github.io/about/</loc>
     <lastmod>2018-09-02T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://example.com/blog/</loc>
+    <loc>https://hqhs.github.io/blog/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://example.com/categories/</loc>
+    <loc>https://hqhs.github.io/categories/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://example.com/tags/examples/</loc>
+    <loc>https://hqhs.github.io/categories/examples/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://example.com/series/examples/</loc>
+    <loc>https://hqhs.github.io/tags/examples/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://example.com/categories/examples/</loc>
+    <loc>https://hqhs.github.io/series/examples/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://example.com/</loc>
+    <loc>https://hqhs.github.io/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://example.com/series/</loc>
+    <loc>https://hqhs.github.io/series/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://example.com/tags/</loc>
+    <loc>https://hqhs.github.io/tags/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
     <priority>0</priority>
   </url>

@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Outsource the problem</title>
-    <link>https://example.com/</link>
+    <link>https://hqhs.github.io/</link>
     <description>Recent content on Outsource the problem</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 10 Oct 2018 15:04:48 +0800</lastBuildDate>
     
-	<atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://hqhs.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Example post</title>
-      <link>https://example.com/blog/2018/example-post/</link>
+      <link>https://hqhs.github.io/blog/2018/example-post/</link>
       <pubDate>Wed, 10 Oct 2018 15:04:48 +0800</pubDate>
       
-      <guid>https://example.com/blog/2018/example-post/</guid>
+      <guid>https://hqhs.github.io/blog/2018/example-post/</guid>
       <description>Poem by Thomas Moore Lay his sword by his side &amp;ndash; it hath served him too well Not to rest near his pillow below; To the last moment true, from his hand ere it fell, Its point was still turn&amp;rsquo;d to a flying foe. Fellow-labourers in life, let them slumber in death, Side by side, as becomes the reposing brave &amp;ndash; That sword which he loved still unbroke in its sheath, And himself unsubdued in his grave.</description>
     </item>
     
