@@ -15,7 +15,7 @@
   </url>
   
   <url>
-    <loc>https://hqhs.github.io/blog/2019/optional-types-in-go-done-right/</loc>
+    <loc>https://hqhs.github.io/blog/2019/optional-types-go-in-done-right/</loc>
     <lastmod>2019-07-02T10:00:00+03:00</lastmod>
   </url>
   
@@ -56,12 +56,6 @@
   </url>
   
   <url>
-    <loc>https://hqhs.github.io/tags/golang/</loc>
-    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://hqhs.github.io/categories/golang/</loc>
     <lastmod>2019-07-02T10:00:00+03:00</lastmod>
     <priority>0</priority>
@@ -74,14 +68,14 @@
   </url>
   
   <url>
-    <loc>https://hqhs.github.io/blog/2018/example-post/</loc>
-    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
+    <loc>https://hqhs.github.io/tags/golang/</loc>
+    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://hqhs.github.io/tags/examples/</loc>
+    <loc>https://hqhs.github.io/blog/2018/example-post/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -92,6 +86,12 @@
   
   <url>
     <loc>https://hqhs.github.io/series/examples/</loc>
+    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/tags/examples/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
     <priority>0</priority>
   </url>

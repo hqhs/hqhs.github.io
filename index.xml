@@ -12,12 +12,14 @@
     
     
     <item>
-      <title>Optional types in go done right</title>
-      <link>https://hqhs.github.io/blog/2019/optional-types-in-go-done-right/</link>
+      <title>Optional types Go in done right</title>
+      <link>https://hqhs.github.io/blog/2019/optional-types-go-in-done-right/</link>
       <pubDate>Tue, 02 Jul 2019 10:00:00 +0300</pubDate>
       
-      <guid>https://hqhs.github.io/blog/2019/optional-types-in-go-done-right/</guid>
-      <description>Optional types in Go Suppose you have a problem: you got relatively small go codebase (10 kloc without tests) to support &amp;amp; develop at your job. You started to add new features, writing tests, deploying it to production on daily basis, and&amp;hellip; It keeps crashing. I&amp;rsquo;m simply dont know every possible problem this codebase has, hence going to talk about only one of them: optional fields done right and wrong, with examples.</description>
+      <guid>https://hqhs.github.io/blog/2019/optional-types-go-in-done-right/</guid>
+      <description>&lt;p&gt;Suppose you have a problem: you got relatively small go codebase (10 kloc without
+tests) to support &amp;amp; develop at your job. You started to add new features, writing
+tests, deploying it to production on daily basis, and&amp;hellip; It keeps crashing.&lt;/p&gt;</description>
     </item>
     
     <item>
