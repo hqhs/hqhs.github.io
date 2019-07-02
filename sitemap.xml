@@ -3,16 +3,6 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://hqhs.github.io/blog/2018/example-post/</loc>
-    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/about/</loc>
-    <lastmod>2018-09-02T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://hqhs.github.io/blog/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
     <priority>0</priority>
@@ -20,25 +10,13 @@
   
   <url>
     <loc>https://hqhs.github.io/categories/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/series/examples/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://hqhs.github.io/categories/examples/</loc>
+    <loc>https://hqhs.github.io/blog/2018/example-post/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/tags/examples/</loc>
-    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -56,6 +34,63 @@
   <url>
     <loc>https://hqhs.github.io/tags/</loc>
     <lastmod>2018-10-10T15:04:48+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/tags/examples/</loc>
+    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/categories/examples/</loc>
+    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/series/examples/</loc>
+    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/about/</loc>
+    <lastmod>2018-09-02T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/blog/1/optional-types-in-go-done-right/</loc>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/tags/best-practices/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/tags/bloody-production/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/tags/go/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/tags/golang/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/categories/golang/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/series/golang/</loc>
     <priority>0</priority>
   </url>
   
