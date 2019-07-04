@@ -68,29 +68,6 @@
   </url>
   
   <url>
-    <loc>https://hqhs.github.io/blog/2018/example-post/</loc>
-    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/categories/examples/</loc>
-    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/series/examples/</loc>
-    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/tags/examples/</loc>
-    <lastmod>2018-10-10T15:04:48+08:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://hqhs.github.io/about/</loc>
     <lastmod>2018-09-02T00:00:00+00:00</lastmod>
   </url>
