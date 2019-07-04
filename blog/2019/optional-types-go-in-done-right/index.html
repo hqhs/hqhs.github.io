@@ -7,12 +7,12 @@
   <meta name="MobileOptimized" content="320">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1" />
   <meta name="author" content="Outsource the problem">
-  <meta name="description" content="Suppose you have a problem: you got relatively small go codebase (10 kloc without
+  <meta name="description" content="Suppose you have a problem: you&rsquo;ve got relatively small go codebase (10 kloc without
 tests) to support &amp; develop at your job. You started to add new features, writing
 tests, deploying it to production on daily basis, and&hellip; It keeps crashing.">
   
   <meta property="og:title" content="Optional types Go in done right" />
-<meta property="og:description" content="Suppose you have a problem: you got relatively small go codebase (10 kloc without
+<meta property="og:description" content="Suppose you have a problem: you&rsquo;ve got relatively small go codebase (10 kloc without
 tests) to support &amp; develop at your job. You started to add new features, writing
 tests, deploying it to production on daily basis, and&hellip; It keeps crashing." />
 <meta property="og:type" content="article" />
@@ -270,7 +270,7 @@ tests, deploying it to production on daily basis, and&hellip; It keeps crashing.
 
     
       <li class="middot"></li>
-      <li>4 minutes read</li>
+      <li>5 minutes read</li>
     
   </ul>
   
@@ -279,12 +279,12 @@ tests, deploying it to production on daily basis, and&hellip; It keeps crashing.
 
 
           <div class="post-content markdown">
-            <p>Suppose you have a problem: you got relatively small go codebase (10 kloc without
+            <p>Suppose you have a problem: you&rsquo;ve got relatively small go codebase (10 kloc without
 tests) to support &amp; develop at your job. You started to add new features, writing
 tests, deploying it to production on daily basis, and&hellip; It keeps crashing.</p>
 
 <p>I&rsquo;m simply dont know every possible problem this codebase has, hence going to
-talk about only one of them: optional fields done right and wrong, with examples.</p>
+talk about only one of them: optional fields done right and done wrong, with examples.</p>
 
 <p>Golang is relatively young language and in my own information bubble it&rsquo;s very hyped
 right now across all kinds of web developers. Go&rsquo;s authors have done a pretty
@@ -296,11 +296,14 @@ code ever written.</p>
 
 <p>So every program has required input and optional input. It&rsquo;s definetly possible
 to build entire codebase using default zero-values for each type of input.
-Google does that (TODO proof link) and since golang enforces you to write code
-in google&rsquo;s style, it does exacly what then encoding/decoding data to various
-formats. But different companies has different approaches and not everyone has
-20 years of expirience of building systems that scales well. Zero values could
-break compatability with old code. There&rsquo;re two major ways to deal with what:</p>
+Golang enforces you to write code in such way, and since (arguably) &ldquo;good go
+code&rdquo; means &ldquo;code, what Google thinks scales well&rdquo;, I suppose Google
+probably build their codebase using zero values. Their other projects, such as
+gRPC does exacly the same (<a href="https://github.com/google/go-github/issues/19">github issue with discussion</a>, <a href="https://capnproto.org/faq.html#how-do-i-make-a-field-required-like-in-protocol-buffers">explanation</a>) which is
+also could count as evidence for my assumption. But different companies has
+different approaches and not everyone has 20 years of their expirience. Zero
+values could break compatability with old code. There&rsquo;re two major ways to deal
+with what:</p>
 
 <ul>
 <li>Using pointers:</li>
@@ -327,33 +330,9 @@ type String struct {
     V string
     Set bool
 }
-
-// MarshalJSON marshals the value being wrapped to JSON. If there is no vale
-// being wrapped, the zero value of its type is marshaled.
-func (o String) MarshalJSON() (data []byte, err error) {
-	if o.Set {
-		return json.Marshal(o.V)
-	}
-	return []byte(&quot;null&quot;), nil
-}
-
-// UnmarshalJSON unmarshals the JSON into a value wrapped by this optional.
-func (o *String) UnmarshalJSON(data []byte) error {
-	o.Set = true
-	if string(data) == &quot;null&quot; {
-		return nil
-	}
-	var v string
-	err := json.Unmarshal(data, &amp;v)
-	if err != nil {
-		return err
-	}
-	*o = String{V: v, Set: true}
-	return nil
-}
 </code></pre>
 
-<p>Even quick google search gives a lot of results pointers approach:
+<p>Even quick search gives a lot of results with pointers approach:
 <a href="https://willnorris.com/2014/05/go-rest-apis-and-pointers/">one</a>,
 <a href="https://www.sohamkamani.com/blog/golang/2018-07-19-golang-omitempty/">two</a>,
 <a href="https://medium.com/random-go-tips/dynamic-json-schemas-part-1-8f7d103ace71">three</a>.</p>
@@ -364,17 +343,18 @@ func (o *String) UnmarshalJSON(data []byte) error {
 <li><p>Does not scale: one forgotten nil check and everything crashes with &ldquo;Invalid
 memory address or nil pointer dereference&rdquo;.</p></li>
 
-<li><p>Standart library does not support it. &ldquo;encodung/gob&rdquo; for example, <a href="https://golang.org/pkg/encoding/gob/#hdr-Basics">does not
+<li><p>Standart library does not support it. &ldquo;encoding/gob&rdquo; for example, <a href="https://golang.org/pkg/encoding/gob/#hdr-Basics">does not
 trasmit pointers and flatten values they point
-to.</a>. (gRPC starting from 3th
-version does the same, as I understand it)</p></li>
+to.</a>.</p></li>
 
 <li><p>Pointers is not an abstraction for representing optional values. Pointers
 represent memory address and nothing more.</p></li>
 </ul>
 
-<p>I&rsquo;m not 100% sure about points below, but as I understood topic then was
-researching it:
+<p>I&rsquo;m not 100% sure about points below, and they&rsquo;re themself bad arguments,
+because trying to outsmart the compiler is terrible idea unless you profile and
+find bottlenecks, but I included them anyway for you to explain me if I&rsquo;m wrong.
+As I understood topic after researching it:
 - Every pointer is +1 step for GC. Which is itself a bad argument, trying to
   outsmart compiler is terrible idea, but I included it anyway for you, dear
   reader, to correct me if I&rsquo;m wrong.
@@ -403,17 +383,115 @@ researching it:
 to use it:</p>
 
 <ul>
-<li>Memory overhead. (TODO calculations?)</li>
-<li>Verbose code. (TODO examples?)</li>
+<li><p>Memory overhead. It&rsquo;s probably depend on specific language implementation, but
+on OS X x64 arch:</p>
+
+<pre><code class="language-go">type Int struct {
+    I   int
+    Set bool
+}
+...
+	b := true
+	p(&quot;sizeof(bool)&quot;, unsafe.Sizeof(b)) // prints sizeof(bool) 1
+	in := 4
+	p(&quot;sizeof(int)&quot;, unsafe.Sizeof(in)) // prints: sizeof(int) 8
+	i := Int{}
+	p(&quot;sizeof(Int)&quot;, unsafe.Sizeof(i)) // prints: sizeof(Int): 16
+</code></pre>
+
+<p>Why it works in such way (on x64 arch) is explained <a href="https://medium.com/@felipedutratine/how-to-organize-the-go-struct-in-order-to-save-memory-c78afcf59ec2">here</a>.
+TL;DR:
+Memory allocated in consecutive packet of 8 bytes. Bool takes 1 byte, but
+located in struct allocation would take minimum 8 bytes. Counting bytes &ndash;
+probably bad idea on most of the cases
+<a href="https://commandcenter.blogspot.com/2012/04/byte-order-fallacy.html">according</a>
+to Rob Pike.</p>
+
+<ul>
+<li>Code may become verbose.</li>
 <li>Requires you to write lot of boilerplate.</li>
 </ul>
 
-<p>I think I made simple solution for last point. Let me tell about it little bit.</p>
+<p>I made simple solution for last point. Let me tell about it little bit.</p>
 
 <h2 id="show-me-the-code">Show me the code!</h2>
 
 <p>So, how to do better? My contibution: <a href="https://github.com/hqhs/types/">types
-template</a>.</p>
+template</a>. Installation &amp; usage &amp; extension
+described in README.md. To give you foretaste, here&rsquo;s an example of what&rsquo;s possible
+with simple code generation (<a href="https://github.com/hqhs/types/tree/master/examples">more examples</a>):</p>
+
+<pre><code class="language-go">package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;errors&quot;
+	&quot;fmt&quot;
+
+	&quot;github.com/hqhs/types&quot;
+)
+
+var MissingRequiredFieldError = errors.New(&quot;Some of required fields are missing from provided data&quot;)
+
+type Presenter interface {
+	IsPresent() bool
+}
+
+type ExampleT struct {
+	F types.Int64  `json:&quot;f&quot;`
+	I types.Int64  `json:&quot;i&quot;`
+	E types.String `json:&quot;e&quot;`
+	L types.String `json:&quot;l&quot;`
+	D types.Int    `json:&quot;d&quot;`
+}
+
+func (e *ExampleT) Validate() error {
+	requiredF := []Presenter{e.F, e.I, e.E}
+	for _, c := range requiredF {
+		if !c.IsPresent() {
+			return MissingRequiredFieldError
+		}
+	}
+	return nil
+}
+
+func main() {
+	payloadOk := `
+{
+&quot;f&quot;: 123,
+&quot;i&quot;: 321,
+&quot;e&quot;: &quot;hello where!&quot;
+}
+`
+	t1 := &amp;ExampleT{}
+	handleErr(json.Unmarshal([]byte(payloadOk), t1))
+	handleErr(t1.Validate())
+	fmt.Printf(&quot;Unmarshaled struct: %+v\n&quot;, t1)
+	payloadErr := `
+{
+&quot;f&quot;: 123,
+&quot;i&quot;: 321
+}
+`
+	t2 := &amp;ExampleT{}
+	handleErr(json.Unmarshal([]byte(payloadErr), t2))
+	handleErr(t2.Validate())
+	fmt.Printf(&quot;Unmarshaled struct: %+v\n&quot;, t2)
+	/* output:
+		Unmarshaled struct: &amp;{F:123 I:321 E:hello where! L: D:0}
+		panic: Some of required fields are missing from provided data
+	    ...
+		*stacktrace*
+	*/
+}
+
+func handleErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+</code></pre></li>
+</ul>
 
 <h2 id="custom-types-generation-how-does-it-work">Custom types generation? how does it work?</h2>
 
@@ -425,6 +503,7 @@ powerful solution.</p>
 <h2 id="useful-links">Useful links</h2>
 
 <ul>
+<li><a href="https://en.wikipedia.org/wiki/Tony_Hoare#Apologies_and_retractions">Billion dollar mistake</a></li>
 <li><a href="https://povilasv.me/go-memory-management/">Go memory management</a></li>
 <li>From golang code
 <a href="https://github.com/golang/go/blob/go1.10.2/src/runtime/malloc.go#L7">comment</a>:</li>
@@ -435,7 +514,8 @@ powerful solution.</p>
 // This was originally based on tcmalloc, but has diverged quite a bit.
 </code></pre>
 
-<p><a href="http://goog-perftools.sourceforge.net/doc/tcmalloc.html">tmalloc man page</a>.</p>
+<p><a href="http://goog-perftools.sourceforge.net/doc/tcmalloc.html">tmalloc man page</a>.
+- <a href="https://commandcenter.blogspot.com/2012/04/byte-order-fallacy.html">Byte order fallacy</a></p>
           </div>
 
           
@@ -449,9 +529,6 @@ powerful solution.</p>
   <div class="tags-sm">
     
       <li><a href="https://hqhs.github.io/tags/golang" role="button">golang </a></li>
-      
-    
-      <li><a href="https://hqhs.github.io/tags/go" role="button">go </a></li>
       
     
       <li><a href="https://hqhs.github.io/tags/best-practices" role="button">best practices </a></li>
