@@ -43,18 +43,19 @@
 				
 	<article class="post">
 		<h1><a href="https://hqhs.github.io/blog/2019/optional-types-in-go-in-done-right/">Optional types in Go in done right</a> </h1>
+		<p class="meta">Reading time: ; Posted on <span class="postdate">02. July 2019</span></p>
+
 
 		<div class="post-content"><p>Suppose you have a problem: you&rsquo;ve got relatively small go codebase (10 kloc without
 tests) to support &amp; develop at your job. You started to add new features, writing
 tests, deploying it to production on daily basis, and&hellip; It keeps crashing.</p>
 
 <p>I&rsquo;m simply dont know every possible problem this codebase has, hence going to
-talk about only one of them: optional fields done right and done wrong, with examples.</p>
+talk about only one of them: optional fields for client/server implementations
+done right and done wrong, with examples.</p>
 
-<p>Golang is relatively young language and in my own information bubble it&rsquo;s very hyped
-right now across all kinds of web developers. Go&rsquo;s authors have done a pretty
-good job providing comprehensive amount of tools, but even with them it&rsquo;s hard
-to enforce good coding style with best practises available for every line of
+<p>Even with comprehensive amount of golang&rsquo;s tools available, it&rsquo;s hard to enforce
+good coding style with best practises available for every line of
 code ever written.</p>
 
 <h2 id="approaches">Approaches</h2>
@@ -120,10 +121,10 @@ represent memory address and nothing more.</p></li>
 because trying to outsmart the compiler is terrible idea unless you profile and
 find bottlenecks, but I included them anyway for you to explain me if I&rsquo;m wrong.
 As I understood topic after researching it:
-- Every pointer is +1 step for GC. Which is itself a bad argument, trying to
+1. Every pointer is +1 step for GC. Which is itself a bad argument, trying to
   outsmart compiler is terrible idea, but I included it anyway for you, dear
   reader, to correct me if I&rsquo;m wrong.
-- Possible memory fragmentation? Does golang make more memory allocations for
+2. Possible memory fragmentation? Does golang make more memory allocations for
   this code:</p>
 
 <pre><code class="language-go">  name := &quot;Service&quot;
@@ -147,7 +148,7 @@ As I understood topic after researching it:
 <p>Second approach has it&rsquo;s own downsides too, you must know them if you&rsquo;re going
 to use it:</p>
 
-<ul>
+<ol>
 <li><p>Memory overhead. It&rsquo;s probably depend on specific language implementation, but
 on OS X x64 arch:</p>
 
@@ -157,11 +158,11 @@ on OS X x64 arch:</p>
 }
 ...
 	b := true
-	p(&quot;sizeof(bool)&quot;, unsafe.Sizeof(b)) // prints sizeof(bool) 1
+	p(&quot;bool: &quot;, unsafe.Sizeof(b)) // prints: &quot;bool: 1&quot;
 	in := 4
-	p(&quot;sizeof(int)&quot;, unsafe.Sizeof(in)) // prints: sizeof(int) 8
+	p(&quot;int: &quot;, unsafe.Sizeof(in)) // prints: &quot;int: 8&quot;
 	i := Int{}
-	p(&quot;sizeof(Int)&quot;, unsafe.Sizeof(i)) // prints: sizeof(Int): 16
+	p(&quot;opt int:&quot;, unsafe.Sizeof(i)) // prints: &quot;opt int: 16&quot;
 </code></pre>
 
 <p>Why it works in such way (on x64 arch) is explained <a href="https://medium.com/@felipedutratine/how-to-organize-the-go-struct-in-order-to-save-memory-c78afcf59ec2">here</a>.
@@ -172,10 +173,10 @@ probably bad idea on most of the cases
 <a href="https://commandcenter.blogspot.com/2012/04/byte-order-fallacy.html">according</a>
 to Rob Pike.</p>
 
-<ul>
+<ol>
 <li>Code may become verbose.</li>
 <li>Requires you to write lot of boilerplate.</li>
-</ul>
+</ol>
 
 <p>I made simple solution for last point. Let me tell about it little bit.</p>
 
@@ -256,7 +257,7 @@ func handleErr(err error) {
 	}
 }
 </code></pre></li>
-</ul>
+</ol>
 
 <h2 id="custom-types-generation-how-does-it-work">Custom types generation? how does it work?</h2>
 
@@ -265,7 +266,7 @@ gotemplate parses your template, replace every &ldquo;type T string&rdquo; with 
 ${YourType} optional${YourType}&rdquo; and saves them to different files. Simple, yet
 powerful solution.</p>
 
-<h2 id="useful-links">Useful links</h2>
+<h2 id="links">Links</h2>
 
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/Tony_Hoare#Apologies_and_retractions">Billion dollar mistake</a></li>
@@ -285,7 +286,6 @@ powerful solution.</p>
 <li><a href="https://commandcenter.blogspot.com/2012/04/byte-order-fallacy.html">Byte order fallacy</a></li>
 </ul></div>
 
-		<p class="meta">Posted on <span class="postdate">02. July 2019</span></p>
 	</article>
 
 			</div>
