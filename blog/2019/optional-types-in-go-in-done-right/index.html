@@ -23,15 +23,15 @@
 	
 		<ul class="nav">
 			
-				<li><a href="https://github.com/bake/solar-theme-hugo"><span>Github</span></a></li>
+				<li><a href="https://github.com/hqhs"><span>Github</span></a></li>
 			
 		</ul>
 	
 		<ul class="nav">
 			
-				<li><a href="https://themes.gohugo.io/theme/solar-theme-hugo/"><span>Email</span></a></li>
+				<li><a href="mailto:%20lewispersonalitiesgang@yandex.com"><span>Email</span></a></li>
 			
-				<li><a href="https://themes.gohugo.io/solar-theme-hugo/"><span>Twitter</span></a></li>
+				<li><a href="https://twitter.com/hqhqhs"><span>Twitter</span></a></li>
 			
 		</ul>
 	
@@ -48,7 +48,8 @@
 
 		<div class="post-content"><p>Suppose you have a problem: you&rsquo;ve got relatively small go codebase (10 kloc without
 tests) to support &amp; develop at your job. You started to add new features, writing
-tests, deploying it to production on daily basis, and&hellip; It keeps crashing.</p>
+tests, deploying it to production on daily basis, and&hellip; It keeps breaking after
+each deployment.</p>
 
 <p>I&rsquo;m simply dont know every possible problem this codebase has, hence going to
 talk about only one of them: optional fields for client/server implementations
@@ -116,6 +117,11 @@ to.</a>.</p></li>
 <li><p>Pointers is not an abstraction for representing optional values. Pointers
 represent memory address and nothing more.</p></li>
 </ul>
+
+<p>Someone might say: &ldquo;Wait, aren&rsquo;t you suppose to test <em>what?</em>&rdquo;. Well, it depends.
+Sometimes it&rsquo;s easy to write test for all combinations of input data, sometimes
+you&rsquo;re inventing <a href="https://github.com/google/syzkaller">fuzzer</a>, which may not be
+best approach. It&rsquo;s not going to work in my scenario.</p>
 
 <p>I&rsquo;m not 100% sure about points below, and they&rsquo;re themselves bad arguments,
 because trying to outsmart the compiler is terrible idea unless you profile and

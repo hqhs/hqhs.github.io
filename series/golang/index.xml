@@ -19,7 +19,8 @@
       <guid>https://hqhs.github.io/blog/2019/optional-types-in-go-in-done-right/</guid>
       <description>&lt;p&gt;Suppose you have a problem: you&amp;rsquo;ve got relatively small go codebase (10 kloc without
 tests) to support &amp;amp; develop at your job. You started to add new features, writing
-tests, deploying it to production on daily basis, and&amp;hellip; It keeps crashing.&lt;/p&gt;</description>
+tests, deploying it to production on daily basis, and&amp;hellip; It keeps breaking after
+each deployment.&lt;/p&gt;</description>
     </item>
     
   </channel>
