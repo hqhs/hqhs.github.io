@@ -50,6 +50,12 @@
   </url>
   
   <url>
+    <loc>https://hqhs.github.io/categories/golang/</loc>
+    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>https://hqhs.github.io/series/golang/</loc>
     <lastmod>2019-07-02T10:00:00+03:00</lastmod>
     <priority>0</priority>
@@ -62,39 +68,8 @@
   </url>
   
   <url>
-    <loc>https://hqhs.github.io/categories/golang/</loc>
-    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://hqhs.github.io/about/</loc>
     <lastmod>2018-09-02T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/blog/1/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/blog/1/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/blog/1/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/blog/1/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/blog/1/</loc>
-    <priority>0</priority>
   </url>
   
 </urlset>
