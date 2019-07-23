@@ -72,9 +72,7 @@ different approaches and not everyone has 20 years of their expirience. Zero
 values could break compatability with old code. There&rsquo;re two major ways to deal
 with what:</p>
 
-<ul>
-<li>Using pointers:</li>
-</ul>
+<p>Using pointers:</p>
 
 <pre><code class="language-go">type Data struct {
     id int `json:&quot;id&quot;`
@@ -83,9 +81,7 @@ with what:</p>
 }
 </code></pre>
 
-<ul>
-<li>Using optional fields</li>
-</ul>
+<p>Using optional fields</p>
 
 <pre><code class="language-go">type Data struct {
     id int `json:&quot;id&quot;`
@@ -126,43 +122,50 @@ best approach. It&rsquo;s not going to work in my scenario.</p>
 <p>I&rsquo;m not 100% sure about points below, and they&rsquo;re themselves bad arguments,
 because trying to outsmart the compiler is terrible idea unless you profile and
 find bottlenecks, but I included them anyway for you to explain me if I&rsquo;m wrong.
-As I understood topic after researching it:
-1. Every pointer increase pressure on GC. Which is itself a bad argument, trying to
-  outsmart compiler is terrible idea, but I included it anyway for you, dear
-  reader, to correct me if I&rsquo;m wrong.
-2. Possible memory fragmentation? Does golang make more memory allocations for
-  this code:</p>
+As I understood topic after researching it:</p>
 
-<pre><code class="language-go">  name := &quot;Service&quot;
-  desc := &quot;Shrek's search&quot;
-  data := Data{
-      id: 123,
-      name: &amp;name,
-      description: &amp;description, 
-  }
+<ol>
+<li>Every pointer increase pressure on GC. Which is itself a bad argument, trying to
+outsmart compiler is terrible idea, but I included it anyway for you, dear
+reader, to correct me if I&rsquo;m wrong.</li>
+
+<li><p>Possible memory fragmentation? Does golang make more memory allocations for
+this code:</p>
+
+<pre><code class="language-go">name := &quot;Service&quot;
+desc := &quot;Shrek's search&quot;
+data := Data{
+  id: 123,
+  name: &amp;name,
+  description: &amp;description, 
+}
 </code></pre>
 
 <p>then for this one:</p>
 
-<pre><code class="language-go">  data := Data{
-      id: 123,
-      name: &quot;Service&quot;,
-      description: &quot;Shrek's search&quot;, 
-  }
-</code></pre>
+<pre><code class="language-go">data := Data{
+  id: 123,
+  name: &quot;Service&quot;,
+  description: &quot;Shrek's search&quot;, 
+}
+</code></pre></li>
+</ol>
 
 <p>Second approach has it&rsquo;s own downsides too, you must know them if you&rsquo;re going
 to use it:</p>
 
 <ol>
-<li><p>Memory overhead. It&rsquo;s probably depend on specific language implementation, but
-on OS X x64 arch:</p>
+<li>Code may become verbose.</li>
+<li>Requires you to write lot of boilerplate.</li>
+<li>Memory overhead. It&rsquo;s probably depend on specific language implementation, but
+on OS X x64 arch:</li>
+</ol>
 
-<pre><code class="language-go">type Int struct {
-    I   int
-    Set bool
-}
-...
+<pre><code class="language-go">    type Int struct {
+        I   int
+        Set bool
+    }
+    ...
 	b := true
 	p(&quot;bool: &quot;, unsafe.Sizeof(b)) // prints: &quot;bool: 1&quot;
 	in := 4
@@ -172,17 +175,12 @@ on OS X x64 arch:</p>
 </code></pre>
 
 <p>Why it works in such way (on x64 arch) is explained <a href="https://medium.com/@felipedutratine/how-to-organize-the-go-struct-in-order-to-save-memory-c78afcf59ec2">here</a>.
-TL;DR:
-Memory allocated in consecutive packet of 8 bytes. Bool takes 1 byte, but
-located in struct allocation would take minimum 8 bytes. Counting bytes &ndash;
-probably bad idea on most of the cases
-<a href="https://commandcenter.blogspot.com/2012/04/byte-order-fallacy.html">according</a>
-to Rob Pike.</p>
-
-<ol>
-<li>Code may become verbose.</li>
-<li>Requires you to write lot of boilerplate.</li>
-</ol>
+  TL;DR:
+  Memory allocated in consecutive packet of 8 bytes. Bool takes 1 byte, but
+  located in struct allocation would take minimum 8 bytes. Counting bytes &ndash;
+  probably bad idea on most of the cases
+  <a href="https://commandcenter.blogspot.com/2012/04/byte-order-fallacy.html">according</a>
+  to Rob Pike.</p>
 
 <p>I made simple solution for last point. Let me tell about it little bit.</p>
 
@@ -230,9 +228,9 @@ func (e *ExampleT) Validate() error {
 func main() {
 	payloadOk := `
 {
-&quot;f&quot;: 123,
-&quot;i&quot;: 321,
-&quot;e&quot;: &quot;hello where!&quot;
+  &quot;f&quot;: 123,
+  &quot;i&quot;: 321,
+  &quot;e&quot;: &quot;hello where!&quot;
 }
 `
 	t1 := &amp;ExampleT{}
@@ -241,8 +239,8 @@ func main() {
 	fmt.Printf(&quot;Unmarshaled struct: %+v\n&quot;, t1)
 	payloadErr := `
 {
-&quot;f&quot;: 123,
-&quot;i&quot;: 321
+  &quot;f&quot;: 123,
+  &quot;i&quot;: 321
 }
 `
 	t2 := &amp;ExampleT{}
@@ -262,8 +260,7 @@ func handleErr(err error) {
 		panic(err)
 	}
 }
-</code></pre></li>
-</ol>
+</code></pre>
 
 <h2 id="custom-types-generation-how-does-it-work">Custom types generation? how does it work?</h2>
 
