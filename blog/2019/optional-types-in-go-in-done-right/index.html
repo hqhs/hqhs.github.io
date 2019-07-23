@@ -127,7 +127,7 @@ best approach. It&rsquo;s not going to work in my scenario.</p>
 because trying to outsmart the compiler is terrible idea unless you profile and
 find bottlenecks, but I included them anyway for you to explain me if I&rsquo;m wrong.
 As I understood topic after researching it:
-1. Every pointer is +1 step for GC. Which is itself a bad argument, trying to
+1. Every pointer increase pressure on GC. Which is itself a bad argument, trying to
   outsmart compiler is terrible idea, but I included it anyway for you, dear
   reader, to correct me if I&rsquo;m wrong.
 2. Possible memory fragmentation? Does golang make more memory allocations for
