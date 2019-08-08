@@ -12,6 +12,18 @@
     
     
     <item>
+      <title>Microservices and discipline</title>
+      <link>https://hqhs.github.io/blog/2019/microservices-and-discipline/</link>
+      <pubDate>Tue, 02 Jul 2019 10:00:00 +0300</pubDate>
+      
+      <guid>https://hqhs.github.io/blog/2019/microservices-and-discipline/</guid>
+      <description>&lt;p&gt;Suppose you have a problem: you&amp;rsquo;ve got beautiful opportunity to spent 30 hours
+over 3 days with Chris Ricahrdson author of &lt;a href=&#34;https://www.amazon.com/Microservices-Patterns-examples-Chris-Richardson/dp/1617294543&#34;&gt;microservices patterns&lt;/a&gt;, and you need no use this opportunity to ask
+one of founding fathers of our current understanding &amp;ldquo;how to make good software&amp;rdquo;.
+Here&amp;rsquo;s what I&amp;rsquo;m going to ask and why. Stay tuned.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>Optional types in Go in done right</title>
       <link>https://hqhs.github.io/blog/2019/optional-types-in-go-in-done-right/</link>
       <pubDate>Tue, 02 Jul 2019 10:00:00 +0300</pubDate>
@@ -21,24 +33,6 @@
 tests) to support &amp;amp; develop at your job. You started to add new features, writing
 tests, deploying it to production on daily basis, and&amp;hellip; It keeps breaking after
 each deployment.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://hqhs.github.io/blog/1/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://hqhs.github.io/blog/1/</guid>
-      <description> About this blog </description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://hqhs.github.io/blog/1/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://hqhs.github.io/blog/1/</guid>
-      <description> Document Title </description>
     </item>
     
   </channel>

@@ -12,6 +12,15 @@
     
     
     <item>
+      <title>architecture</title>
+      <link>https://hqhs.github.io/tags/architecture/</link>
+      <pubDate>Tue, 02 Jul 2019 10:00:00 +0300</pubDate>
+      
+      <guid>https://hqhs.github.io/tags/architecture/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>best practices</title>
       <link>https://hqhs.github.io/tags/best-practices/</link>
       <pubDate>Tue, 02 Jul 2019 10:00:00 +0300</pubDate>
@@ -35,6 +44,15 @@
       <pubDate>Tue, 02 Jul 2019 10:00:00 +0300</pubDate>
       
       <guid>https://hqhs.github.io/tags/golang/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>microservices</title>
+      <link>https://hqhs.github.io/tags/microservices/</link>
+      <pubDate>Tue, 02 Jul 2019 10:00:00 +0300</pubDate>
+      
+      <guid>https://hqhs.github.io/tags/microservices/</guid>
       <description></description>
     </item>
     

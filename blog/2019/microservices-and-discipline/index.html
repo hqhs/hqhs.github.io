@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Microservices and discipline</title>
+		<meta name="viewport" content="width=device-width">
+		
+		<link rel="stylesheet" href="https://hqhs.github.io/css/hybrid.css">
+		<link rel="stylesheet" href="https://hqhs.github.io/css/style.css">
+		<link rel="stylesheet" href="https://hqhs.github.io/css/colors-dark.css">
+
+		
+	</head>
+	<body>
+		<header id="header">
+			<h1><a href="https://hqhs.github.io/">Outsource the problem</a></h1>
+			<p>by Dmitry Afanasyev.</p>
+		</header>
+
+		<div id="page">
+			<div id="sidebar">
+				<nav>
+	
+		<ul class="nav">
+			
+				<li><a href="https://github.com/hqhs"><span>Github</span></a></li>
+			
+		</ul>
+	
+		<ul class="nav">
+			
+				<li><a href="mailto:%20lewispersonalitiesgang@yandex.com"><span>Email</span></a></li>
+			
+				<li><a href="https://twitter.com/hqhqhs"><span>Twitter</span></a></li>
+			
+		</ul>
+	
+</nav>
+
+			</div>
+
+			<div id="content">
+				
+	<article class="post">
+		<h1><a href="https://hqhs.github.io/blog/2019/microservices-and-discipline/">Microservices and discipline</a> </h1>
+		<p class="meta">Reading time: 4 minutes; Posted on <span class="postdate">02. July 2019</span></p>
+
+
+		<div class="post-content"><p>Suppose you have a problem: you&rsquo;ve got beautiful opportunity to spent 30 hours
+over 3 days with Chris Ricahrdson author of <a href="https://www.amazon.com/Microservices-Patterns-examples-Chris-Richardson/dp/1617294543">microservices patterns</a>, and you need no use this opportunity to ask
+one of founding fathers of our current understanding &ldquo;how to make good software&rdquo;.
+Here&rsquo;s what I&rsquo;m going to ask and why. Stay tuned.</p>
+
+<p>This book promotes idea about architectural style that structures an
+application as a collection of loosely coupled services
+(<a href="https://en.wikipedia.org/wiki/Microservices">wiki</a>). Basically, instead of
+this:</p>
+
+<p>[IMAGE: one giant shitty monolith codebase].</p>
+
+<p>You got this:</p>
+
+<p>[IMAGE: many smaller shitty splitted codebases].</p>
+
+<h1 id="intro">Intro</h1>
+
+<p>I&rsquo;m not a big fan of programming patterns with unamaginative acronyms, such as
+KISS, DRY, etc., more into <a href="https://en.wikipedia.org/wiki/Competitive_programming">competitive programming</a> and <a href="https://security.stackexchange.com/questions/193004/what-exactly-is-ctf-and-how-can-i-as-programmer-prepare-for-a-ctf-with-beginner">capture
+the flag competitions</a>.
+Solving many of the first ones you&rsquo;ll (probably) learn to search for most simple
+and fastest solution, doing the second ones you&rsquo;ll (again, probably) learn about
+how computers works much more, then N years on you job gives you (I&rsquo;ve not found
+suitable N yet, only have 1.5 years of actual working experience), and what&rsquo;s
+definetly affect my questions.</p>
+
+<p>Also, I&rsquo;m going to add answers to questions, as I understood them. They&rsquo;re
+probably would not be direct quotes, nor addresible to Chris Richardson himself
+(although I&rsquo;ll try to ask him to edit my version of his answers if he wants to).
+I&rsquo;ll try to provide as much context as possible, but do not take them seriously
+in any way possible.</p>
+
+<p>Couple more disclaimers before we talk business. Obviously, there&rsquo;s nothing new
+under the sun, and &ldquo;microservice patterns&rdquo; as we call them were discussed in
+kernel developers community back in 1970ies [TODO proof link?] as <a href="https://wiki.osdev.org/Microkernel">&ldquo;microkernel
+pattern&rdquo;</a>. And the term &ldquo;microservice&rdquo; was
+coined at a software architecture workshop in 2011 (18 page 6th paragrath in
+book). My top of the head math definition would be:</p>
+
+<p>Let&rsquo;s define your software product as y = f(x) where x &ndash; input and y &ndash; output
+in any given format. &ldquo;Microservice&rdquo; means what you split f(x) into smaller
+f1..N(x)es and abstract away implementation details behind contracts, (or
+<a href="https://en.wikipedia.org/wiki/Application_programming_interface">APIs</a>), where
+for any given service fi(x) true following statement: fi(x) does not have any
+way to access over f1..N(x) state, but only via interface. (I&rsquo;ll talk about such
+definition more below). [TODO make better definition &amp; discuss with someone]</p>
+
+<p>The hype around microservices pattern would be main subject of questions, just
+because I enjoy separating hype from truth and frequently feel what whose popular
+architecture topics are much like <a href="https://www.lesswrong.com/posts/FWMfQKG3RpZx6irjm/semantic-stopsigns">semantic
+stopsigns</a>
+and lead to under-optimal solutions.</p>
+
+<p>[TODO: maybe google trends link? microservices/monolith]</p>
+
+<h1 id="question-list">Question list</h1>
+
+<p>Currently I have approximately 10 hours for preparation before actual meetup, I
+tried to do my best splitting time between this post and reading actual book,
+and may miss some key points. Feel free to correct me any way possible.</p>
+
+<p>Q: TODO: You&rsquo;ll write a lot about suck/rock dichotomy, gartner hype cycle etc. etc.</p>
+
+<p>Q: Do we need microservice architecture from start? Let&rsquo;s say we&rsquo;re working in
+avarage size company (compared to google) and want to build internal tool to
+abstract away infrastracture from product developers. How to choose wright way?</p>
+
+<p>Q: Sometimes I have feeling what hype around microservices had competely blown
+away it&rsquo;s upsides &amp; downsides. Why does not community talk more about HOW to
+make a decision, not about WHICH way is only correct one.</p>
+
+<p>Q: Quote your book: &ldquo;Each technology has drawbacks and limitations that are
+often overlooked by its advocates&rdquo;. So, you&rsquo;re microservice advocate. What did
+you overlook and what was your mistakes?</p>
+
+<h1 id="the-economy-behind-evangelists">The economy behind evangelists</h1>
+
+<p>Then reading the original book and essaying it I lost count of how many time
+Richard say &ldquo;The growing consensus is that if you&rsquo;re building a large, complex
+application, you should consider using microservice architecture.&rdquo; or &ldquo;The
+disciplined team can slow down the pace of its descent toward monolithic hel &hellip;
+the best a team can do is delay the inevitable.&rdquo; in various rephrases.</p>
+
+<h1 id="1-minute-retelling-of-500-page-book">1 minute retelling of 500 page book</h1>
+
+<p>Then you have problems with monnolithic architecture, you eventually must solve
+them. One of possible solutions is to refactor monolith into distributed
+system. Distributed systems has it&rsquo;s own upsides (faster deploy, modularity from
+start etc.) and downsides (increased complexity, tough transition period). One
+of key issues to consider is &ldquo;How components of your distributed system would
+communicate?&ldquo;. There&rsquo;re many communications patterns available, synchronous one
+must be designed to handle partial failures. Also, you should not forget about
+changing of testing style then moving from centralized style system to distrubeted.</p>
+
+<h1 id="the-actual-problem-and-actual-solution-and-why-so-many-people-got-it-wrong">The actual problem and actual solution (and why so many people got it wrong)</h1>
+
+<p>gRPC</p>
+
+<h1 id="case-for-developer-s-discipline">Case for developer&rsquo;s discipline</h1>
+
+<p>&ldquo;Despite the best efforst of the developer team, it&rsquo;s bacome and example of the
+big ball of mud pattern&rdquo; [2 page 5 paragrath].</p>
+
+<h1 id="stop-storytelling-teach">Stop storytelling, teach!</h1>
+
+<h1 id="links">Links</h1>
+
+<p>Michael Fisher, The Art of Scalability</p></div>
+
+	</article>
+
+			</div>
+
+			<footer id="footer">
+				<p class="copyright">
+					
+						Powered by <a href="https://gohugo.io/">Hugo</a> and the
+						<a href="https://github.com/bake/solar-theme-hugo">Solar</a>-theme.
+					
+				</p>
+			</footer>
+		</div>
+
+		
+	</body>
+</html>
