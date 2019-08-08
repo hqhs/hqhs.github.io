@@ -6,10 +6,28 @@
     <description>Recent content in Series on Outsource the problem</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 02 Jul 2019 10:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Thu, 08 Aug 2019 10:00:00 +0300</lastBuildDate>
     
 	<atom:link href="https://hqhs.github.io/series/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>code walkthrough</title>
+      <link>https://hqhs.github.io/series/code-walkthrough/</link>
+      <pubDate>Thu, 08 Aug 2019 10:00:00 +0300</pubDate>
+      
+      <guid>https://hqhs.github.io/series/code-walkthrough/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>networking</title>
+      <link>https://hqhs.github.io/series/networking/</link>
+      <pubDate>Thu, 08 Aug 2019 10:00:00 +0300</pubDate>
+      
+      <guid>https://hqhs.github.io/series/networking/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>golang</title>

@@ -6,10 +6,46 @@
     <description>Recent content on Outsource the problem</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 02 Jul 2019 10:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Thu, 08 Aug 2019 10:00:00 +0300</lastBuildDate>
     
 	<atom:link href="https://hqhs.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Understanding gRPC runtime</title>
+      <link>https://hqhs.github.io/blog/2019/understanding-grpc-runtime/</link>
+      <pubDate>Thu, 08 Aug 2019 10:00:00 +0300</pubDate>
+      
+      <guid>https://hqhs.github.io/blog/2019/understanding-grpc-runtime/</guid>
+      <description>&lt;p&gt;Suppose you have a problem: in order to use hyped communication framework,
+called &amp;ldquo;gRPC&amp;rdquo;, you need to be familural with it&amp;rsquo;s runtime, but networking
+internals is terrifyingly complicated. Here&amp;rsquo;s my try to dig threw it&amp;rsquo;s internals
+and design decisions in order to build complete understanding of gRPC internals
+&amp;amp; design decisions. I&amp;rsquo;ve also skimmed through the Tanenbaum&amp;rsquo;s book about
+networks to describe everything gRPC hides behind abstractions.&lt;/p&gt;
+
+&lt;!-- Suppose you have a problem: if you&#39;re living in 21th century and building --&gt;
+
+&lt;!-- something related to computers, starting from simple static site with html --&gt;
+
+&lt;!-- pages and ending with software behind SpaceX rockets, at some point, you&#39;re --&gt;
+
+&lt;!-- going interact with network. And if you want to became *good* at whatever you&#39;re --&gt;
+
+&lt;!-- doing, you *need* to have some level of understanding how does networks work --&gt;
+
+&lt;!-- internally. But the actual problem is: networks are terrifyingly complicated. --&gt;
+
+&lt;!-- In hindsight I understood what *actual* topic of this blog was to dig threw gRPC --&gt;
+
+&lt;!-- internals and design decisions, in order to answer the question: &#34;Why does gRPC --&gt;
+
+&lt;!-- runtime is so large?&#34;, but in order to build complete understanding &#34;from ground --&gt;
+
+&lt;!-- truth&#34; I&#39;ve also skimmed from Tanenbaum&#39;s book and written a bunch of simple --&gt;
+
+&lt;!-- servers on C with libevent &amp; evhhtp &amp; nghttp2. --&gt;</description>
+    </item>
     
     <item>
       <title>Optional types in Go in done right</title>

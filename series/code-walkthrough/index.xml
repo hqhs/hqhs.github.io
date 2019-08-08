@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Blogs on Outsource the problem</title>
-    <link>https://hqhs.github.io/blog/</link>
-    <description>Recent content in Blogs on Outsource the problem</description>
+    <title>code walkthrough on Outsource the problem</title>
+    <link>https://hqhs.github.io/series/code-walkthrough/</link>
+    <description>Recent content in code walkthrough on Outsource the problem</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 08 Aug 2019 10:00:00 +0300</lastBuildDate>
     
-	<atom:link href="https://hqhs.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://hqhs.github.io/series/code-walkthrough/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -45,18 +45,6 @@ networks to describe everything gRPC hides behind abstractions.&lt;/p&gt;
 &lt;!-- truth&#34; I&#39;ve also skimmed from Tanenbaum&#39;s book and written a bunch of simple --&gt;
 
 &lt;!-- servers on C with libevent &amp; evhhtp &amp; nghttp2. --&gt;</description>
-    </item>
-    
-    <item>
-      <title>Optional types in Go in done right</title>
-      <link>https://hqhs.github.io/blog/2019/optional-types-in-go-in-done-right/</link>
-      <pubDate>Tue, 02 Jul 2019 10:00:00 +0300</pubDate>
-      
-      <guid>https://hqhs.github.io/blog/2019/optional-types-in-go-in-done-right/</guid>
-      <description>&lt;p&gt;Suppose you have a problem: you&amp;rsquo;ve got relatively small go codebase (10 kloc without
-tests) to support &amp;amp; develop at your job. You started to add new features, writing
-tests, deploying it to production on daily basis, and&amp;hellip; It keeps breaking after
-each deployment.&lt;/p&gt;</description>
     </item>
     
   </channel>

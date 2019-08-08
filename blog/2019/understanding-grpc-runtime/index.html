@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Understanding gRPC runtime</title>
+		<meta name="viewport" content="width=device-width">
+		
+		<link rel="stylesheet" href="https://hqhs.github.io/css/hybrid.css">
+		<link rel="stylesheet" href="https://hqhs.github.io/css/style.css">
+		<link rel="stylesheet" href="https://hqhs.github.io/css/colors-dark.css">
+
+		
+	</head>
+	<body>
+		<header id="header">
+			<h1><a href="https://hqhs.github.io/">Outsource the problem</a></h1>
+			<p>by Dmitry Afanasyev.</p>
+		</header>
+
+		<div id="page">
+			<div id="sidebar">
+				<nav>
+	
+		<ul class="nav">
+			
+				<li><a href="https://github.com/hqhs"><span>Github</span></a></li>
+			
+		</ul>
+	
+		<ul class="nav">
+			
+				<li><a href="mailto:%20lewispersonalitiesgang@yandex.com"><span>Email</span></a></li>
+			
+				<li><a href="https://twitter.com/hqhqhs"><span>Twitter</span></a></li>
+			
+		</ul>
+	
+</nav>
+
+			</div>
+
+			<div id="content">
+				
+	<article class="post">
+		<h1><a href="https://hqhs.github.io/blog/2019/understanding-grpc-runtime/">Understanding gRPC runtime</a> </h1>
+		<p class="meta">Reading time: 10 minutes; Posted on <span class="postdate">08. August 2019</span></p>
+
+
+		<div class="post-content"><p>Suppose you have a problem: in order to use hyped communication framework,
+called &ldquo;gRPC&rdquo;, you need to be familural with it&rsquo;s runtime, but networking
+internals is terrifyingly complicated. Here&rsquo;s my try to dig threw it&rsquo;s internals
+and design decisions in order to build complete understanding of gRPC internals
+&amp; design decisions. I&rsquo;ve also skimmed through the Tanenbaum&rsquo;s book about
+networks to describe everything gRPC hides behind abstractions.</p>
+
+<!-- Suppose you have a problem: if you're living in 21th century and building -->
+
+<!-- something related to computers, starting from simple static site with html -->
+
+<!-- pages and ending with software behind SpaceX rockets, at some point, you're -->
+
+<!-- going interact with network. And if you want to became *good* at whatever you're -->
+
+<!-- doing, you *need* to have some level of understanding how does networks work -->
+
+<!-- internally. But the actual problem is: networks are terrifyingly complicated. -->
+
+<!-- In hindsight I understood what *actual* topic of this blog was to dig threw gRPC -->
+
+<!-- internals and design decisions, in order to answer the question: "Why does gRPC -->
+
+<!-- runtime is so large?", but in order to build complete understanding "from ground -->
+
+<!-- truth" I've also skimmed from Tanenbaum's book and written a bunch of simple -->
+
+<!-- servers on C with libevent & evhhtp & nghttp2. -->
+
+<p>NOTE: I&rsquo;m terrible in job estimations, and if you&rsquo;re reading this, what means
+what I skipped code examples at all.</p>
+
+<h1 id="foreword">Foreword</h1>
+
+<p>I want to build map of everything gRPC related, starting from networking layers
+and ending with source code walkthrew.</p>
+
+<p>Since what I want to describe here is a &ldquo;map&rdquo;, I&rsquo;m not planning to re-write
+every text from the internet. Basically, is just a bunch of references to
+other people (often better) maps glue together by me with some code examples.</p>
+
+<p>If your innermost desire is to be drown in theoretical detals, you probably
+should start with Tanenbaum&rsquo;s &ldquo;Computer Networks&rdquo; [1]. I&rsquo;ll try to focus on
+practical parts with rare references to this never aging classics.</p>
+
+<h1 id="brief-overview-of-networking-layers">Brief overview of networking layers</h1>
+
+<p>Feel free to skip to the next section if you could repeat from memory OSI
+specification, know about /dev/net/tap or could write tcp proxy without any
+googling.</p>
+
+<p>The most popular way to describe network protocols is Open Systems
+Interconnection (OSI for short) model[2], developed by
+International Organization for Standardization (abbreviated as ISO for some
+reason). You probably saw this picture: [TODO any osi specification illustration].</p>
+
+<p>Everything you need to know about L1 (the transport layer) is what it&rsquo;s based on Fourier
+series[3] and even a perfect channel has a finite transmission capacity[4].</p>
+
+<p>Essential property of L2 (the data link layer) connection between two machines
+is that the bits are delivered is exacly the same order in which they are sent.
+(&ldquo;wire-like&rdquo; channel according to Tanenbaum). Such connections (channels) make
+errors occasionaly, has finite data rate (due to the L1 layer) and there&rsquo;s
+always some delay between sending and receiving. The protocol used for
+commucation must take all these factors into consideration (and it usually
+does). The task of the data link layer is to convert the raw bit stream offered
+by physical layer into a stream of frames for use by network layer.</p>
+
+<p>The basic purpose of L3 (the network layer) is get packets from the source all
+the way to the destination. Hence all routing (finding physical MAC adress given
+ip) is done here.</p>
+
+<p>From software developer perspective, on linux L2/L3 levels could be accessed
+using /dev/net/tap file descriptor (what is file descriptor you could read
+here [TODO]). And how to code a TCP/IP stack is explained
+<a href="https://www.saminiir.com/lets-code-tcp-ip-stack-1-ethernet-arp/">here</a>.</p>
+
+<p>L4 (The transport protocol) is layer where mind bending stuff happens. There&rsquo;s two
+main transport protocols: TCP &amp; UDP. UDP is commonly used in time-sensitive
+communications where occasionaly dropping packets is better then waiting, e.g.
+voice &amp; video traffic, online games, DNS, NTP, and TCP is for everything
+else. Sidecars (for service meshes) and proxies (TODO find appropriate
+definitions for hipster terminology) sometimes could
+operate on L4 layer, (for example, Envoy&rsquo;s tcp proxy <a href="https://github.com/envoyproxy/envoy/blob/56d03e0bd106e933ece6201439bbf4d4208f39a5/source/common/tcp_proxy/tcp_proxy.h#L174">class definition</a> and
+<a href="https://github.com/envoyproxy/envoy/blob/56d03e0bd106e933ece6201439bbf4d4208f39a5/source/common/tcp_proxy/tcp_proxy.cc#L173">implementation</a>).</p>
+
+<p>According to OSI where&rsquo;s 2 more layers before &ldquo;Application level&rdquo;, whereas
+Tanenbaum skipped L5 &amp; L6 (session and presentations layes accordingly)
+altogether. Their details are out of the scope of this blog, besides fact what
+ssl/tls (SSL is predecessor of TLS) [TODO: link] encryption is done where.</p>
+
+<p>Networking is layered set of thick abstractions made by humans, where every part
+could fail at some point. By &ldquo;every part&rdquo; I mean &ldquo;EVERYTHING&rdquo;, starting from
+single network card in particular server ending with whole datacenter outage.
+Takeaway message is simple: network is not reliable[5], and at some point you
+should deal with it.</p>
+
+<p>If you&rsquo;re happy linux user, you probably know what everything described above is
+accessible with simple cli commands (from top of my head:
+netcat, ifconfig &amp; ip, tcpdump, ngrep, ping, dig, traceroute. Where&rsquo;re dosens of
+them[TODO: link]), and having some experience or perseverance debugging is just
+matter of time.</p>
+
+<p>Or you may not need to deal with such issues at all, nor encoutered them, or not
+even know they exist, but someone (let&rsquo;s say guy who develop AWS [TODO link] on
+which any web app you made is running) down the stack must design fault tolerant
+systems.</p>
+
+<h1 id="transfering-data-over-tcp">Transfering data over tcp</h1>
+
+<p>If you already know differences between major HTTP versions, know about QUIC or
+saw bunch of different server implementations on C, feel free to skip to [TODO:
+link to next section]</p>
+
+<p>Note what I&rsquo;m not going to write single word about encryption &amp; authorization,
+network topology and made a lot of simplifications in general. As of today most
+of internet communication (even between two servers in datacenter) does not look
+like simple client/server communication over single TCP socket.</p>
+
+<p>So, suppose you want to create server which stores some data and allow clients
+to fetch it over network. Raw tcp is not a good fit: you&rsquo;ll probably ended up
+with custom data representation format, with bunch of bugs or spent shitload of
+money to pay someone who could do it from scratch. First solution to this
+problem was called HTTP/0.9 and was introduced back in 1991. Simple and obvious,
+it looks like this:</p>
+
+<pre><code class="language-bash">$ nc google.com 80
+GET /
+HTTP/1.0 200 OK
+# ... headers and response body...
+</code></pre>
+
+<p>But scariest part is yet to come: standards <em>develop and grow</em>. Back in 2000
+network looked like this:</p>
+
+<p>IPv4 -&gt; TCP -&gt; SSL/TLS* -&gt; HTTP/1.1</p>
+
+<ul>
+<li>(TLS was developed later and at some point mostly replaced SSL, but encryption
+wasn&rsquo;t what popular back in the good old days)</li>
+</ul>
+
+<p>And as of 2019 it looks like this:</p>
+
+<p>IPv6 -&gt; TCP -&gt; TLS v1.3 -&gt; HTTP/2</p>
+
+<p>Good introduction to HTTP/2 is
+<a href="https://developers.google.com/web/fundamentals/performance/http2/">here</a>, or
+simply read RFC <a href="https://tools.ietf.org/html/rfc7540">spec</a>. Basically, HTTP/2
+introduced new incompatable binary framing level, and some optimizations to
+reduce latency between communication endpoints, such as:
+- request multiplexing, which is, basically, using single TCP connection per
+  origin for requests to multiple hosts[TODO: link?]. Important note here:
+  since HTTP/2 connections are persistant, choosing right strategy for load
+  balancing is not so trivial as in HTTP/1 case, more about it (from gRPC
+  standpoint) below.
+- bidirectional streams. Since each http request/response could be splitted into
+  multiple frames, the order in which the frames delivered by client/server
+  becomes perfomance consideration, hence streams could be assigned &ldquo;priority&rdquo;
+  with value from 1 to 256 and be dependant on each over.
+- headers compression. Since sessions are persistent, server could simply
+  &ldquo;memorize&rdquo; headers and reuse them for following requests.</p>
+
+<p>Probably, most notable perfomance increase was experiences by end clients (such
+as browsers). If your setup is simply nginx as reverse proxy with fastcgi, uwsgi
+etc., you could simple use HTTP/2 only on frontend server and sleep peacefully.
+More on this <a href="https://www.nginx.com/blog/7-tips-for-faster-http2-performance/">in nginx blog</a>.</p>
+
+<p>I haven&rsquo;t found any good HTTP/2 perfomance analysis for cluster deployments,
+probably, because it&rsquo;s not so easy to do it well.</p>
+
+<p>Personally I found Golang code simplest to read, if interested, you could
+compare http/2 protocol implementation with http/1, or use any language of your
+choise. [TODO: c/c++, java, rust examples]</p>
+
+<h2 id="foreseeable-future">Foreseeable future</h2>
+
+<p>And discussion around HTTP/3 already started to heat. Careful readers will
+notice what for 20 years straight TCP practically does not change at all, but
+it has it&rsquo;s own problems[TODO: link], which some companies tries to address in
+so called HTTP/3, or QUIC.</p>
+
+<h1 id="introducing-grpc">Introducing gRPC</h1>
+
+<p>Actually, gRPC consists of many different projects. Protobuf used by default for
+encoding/decoding (optional, you may use json). Basically, it could be
+represented as follows:</p>
+
+<p>service logic code &lt;- interface generated by protoc from definitions &lt;- used by
+http/2 server implementation, which communicates with clients with data encoded
+by protobuf to binary format and translated as http/2 frames. [TODO: rewrite
+this nonsence, or make ]</p>
+
+<p><img src="https://hqhs.github.io/static/images/grpc-core-stack.svg" alt="grpc stack" /></p>
+
+<p><a href="https://grpc.io/blog/grpc-stacks/">Image source.</a></p>
+
+<h2 id="understanding-runtime">Understanding runtime</h2>
+
+<p>Some languages has their own implementations of protobuf/ Golang and Java has
+their own runtimes, and everything else is based on C/C++ implementations (using
+FFI bindings). So, why does gRPC runtime <em>seems</em> so large and complicated?
+Original developers at google could not allow themselfes to use someone&rsquo;s own
+http/2 implementation, so they write their own &ndash; what&rsquo;s part one of runtime.
+gRPC uses protobuf by default, and any good language independent
+encoding/decoding library which optimized for memory usage is not so easy to
+implement. [TODO: link to site where developers describe how protobuf does not
+need to decode full message in order to fetch some data]. And gRPC is so much
+more! It has authorization, compression (you may use gzip if want to, lz4
+support may be added in future), connection timeouts (so called deadlines), eazy
+to use bidirectional streems (imagine implementing this on your own), request
+metadata, middleware (with pluggable validators) etc. etc. It has large
+<a href="https://github.com/grpc-ecosystem">ecosystem</a> in general.</p>
+
+<h2 id="pros-cons">pros/cons</h2>
+
+<p>And I would argue what everything listed above is not gRPC main features. Main
+feature is <em>single source of truth</em> for client and server. Humands are terrible
+at contract compliances. You may use jsonschema or simular validators, but it
+what case you have multiple sources: one is your code, and other is schema
+definition. In gRPC case, code is generated from definition, and human errors
+still possible, but much less likely. Designing fault tolerant systems using
+proto is simpler, e.g. <a href="https://github.com/nilslice/protolock">protolock</a>. <a href="https://www.beautifulcode.co/blog/88-backward-and-forward-compatibility-protobuf-versioning-serializa">More
+about gRPC api versioning.</a></p>
+
+<p>cons:
+- requires some change in reasoning about architecture &amp; code. gRPC uses golang
+  like zero values and all fields are optional by default (starting from third
+  version), but what&rsquo;s definetly a good thing, <a href="https://capnproto.org/faq.html#how-do-i-make-a-field-required-like-in-protocol-buffers">explanation is
+  here</a>.
+  Also, streams is not so easy to adopt, but pays well if used properly (e.g.
+  lambda architecture <a href="https://en.wikipedia.org/wiki/Lambda_architecture">&ldquo;handles massive quantities of data by taking advantage
+  of both batch and stream-processing
+  methods&rdquo;</a>, more on
+  <a href="https://www.oreilly.com/ideas/questioning-the-lambda-architecture">lambda</a>)
+- for go/java debugging is possible even for avarage hand developers, but if using
+  c/c++ ffi bindings for other languages you may encounter problems at some
+  point, and you need not to be scaried away by production grade c++ code in
+  order to find bug (or discover what that&rsquo;s a feature). [TODO: debugging using
+  channelz and sending json payload with curl via envoy]
+- any technology/framework incroduced in your stack increases entry threshold
+  for newcomers and going for &ldquo;hyped and fashionable tech&rdquo; is always bad,
+  regardless of technology itself. Thumb rule here is simple: try it, play
+  around, understand it, know it&rsquo;s weaknesses and which problem you&rsquo;re trying to
+  solve. Don&rsquo;t get yourself into <a href="https://en.wikipedia.org/wiki/Hype_cycle">hype cycle</a>.</p>
+
+<p>You need to be sure what everyone you&rsquo;re working with would go <em>faster</em> with
+gRPC, not slower. Increasing development speed for distrubuted systems &ndash; is
+main purpose.</p>
+
+<h2 id="todo-routing">TODO routing</h2>
+
+<p>Because of all of goodies described above, routing in gRPC is not so trivial as
+it was in HTTP/1 times. <a href="https://grpc.io/blog/loadbalancing/">Here&rsquo;s</a> tutorial
+from official documentation, and simplest <a href="https://kubernetes.io/blog/2018/11/07/grpc-load-balancing-on-kubernetes-without-tears/">solution for
+kubernetes</a>.</p>
+
+<h2 id="it-probable-future-but-not-yet-industry-standard">It probable future, but not yet industry standard</h2>
+
+<p>At some point it could even replace REST in web, google already
+<a href="https://grpc.io/blog/state-of-grpc-web/">working</a> on browser clients, although
+many agree what they&rsquo;re not yet production ready.</p>
+
+<h1 id="quickly-introducing-twirp">Quickly introducing twirp</h1>
+
+<p>So, if you not yet ready to adopt large gRPC ecosystem in your particular
+company, you may end up with <a href="https://github.com/twitchtv/twirp">twirp</a>,
+developed by guys from twitch.tv. Yet in my opinion moving to HTTP/2 is
+inevitable at some point.</p>
+
+<p>What&rsquo;s all, thanks for reading! If you have some corrections, or find yourself
+disagreeing on any point, feel free to contact me via email, twitter, reddit
+[TODO: links].</p>
+
+<h1 id="references">References</h1>
+
+<p>[1] <a href="https://www.amazon.com/Computer-Networks-Andrew-S-Tanenbaum-ebook/dp/B006Y1BKGC">Andrew S. Tanenbaum, &ldquo;Computer Networks&rdquo;</a>
+[2] <a href="https://en.wikipedia.org/wiki/List_of_network_protocols_(OSI_model)#Layer_7_(Application_Layer)">OSI model</a>
+[3] <a href="https://www.youtube.com/watch?v=spUNpyF58BY">Fourier series explanation by 3Blue1Brown</a>
+[4] <a href="https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem">Nyquist-Shannon sampling theorem</a>
+[5] <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing">Fallacies of distributed computing</a></p>
+
+<p>FIXME:
+[6] <a href="https://nptel.ac.in/courses/117106116/24">https://nptel.ac.in/courses/117106116/24</a>
+[3] <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing#cite_note-8-Fallacies-1">Fallacies of distributed computing</a></p></div>
+
+	</article>
+
+			</div>
+
+			<footer id="footer">
+				<p class="copyright">
+					
+						Powered by <a href="https://gohugo.io/">Hugo</a> and the
+						<a href="https://github.com/bake/solar-theme-hugo">Solar</a>-theme.
+					
+				</p>
+			</footer>
+		</div>
+
+		
+	</body>
+</html>

@@ -4,37 +4,78 @@
   
   <url>
     <loc>https://hqhs.github.io/blog/</loc>
-    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://hqhs.github.io/categories/</loc>
-    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/</loc>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/series/</loc>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/tags/</loc>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/blog/2019/understanding-grpc-runtime/</loc>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/series/code-walkthrough/</loc>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/tags/grpc/</loc>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/series/networking/</loc>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/tags/networking/</loc>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/categories/networking/</loc>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hqhs.github.io/tags/protocols/</loc>
+    <lastmod>2019-08-08T10:00:00+03:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://hqhs.github.io/blog/2019/optional-types-in-go-in-done-right/</loc>
     <lastmod>2019-07-02T10:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/</loc>
-    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/series/</loc>
-    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/tags/</loc>
-    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -50,6 +91,12 @@
   </url>
   
   <url>
+    <loc>https://hqhs.github.io/series/golang/</loc>
+    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>https://hqhs.github.io/tags/golang/</loc>
     <lastmod>2019-07-02T10:00:00+03:00</lastmod>
     <priority>0</priority>
@@ -57,12 +104,6 @@
   
   <url>
     <loc>https://hqhs.github.io/categories/golang/</loc>
-    <lastmod>2019-07-02T10:00:00+03:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://hqhs.github.io/series/golang/</loc>
     <lastmod>2019-07-02T10:00:00+03:00</lastmod>
     <priority>0</priority>
   </url>
