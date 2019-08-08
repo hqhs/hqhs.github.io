@@ -196,18 +196,23 @@ wasn&rsquo;t what popular back in the good old days)</li>
 <a href="https://developers.google.com/web/fundamentals/performance/http2/">here</a>, or
 simply read RFC <a href="https://tools.ietf.org/html/rfc7540">spec</a>. Basically, HTTP/2
 introduced new incompatable binary framing level, and some optimizations to
-reduce latency between communication endpoints, such as:
-- request multiplexing, which is, basically, using single TCP connection per
-  origin for requests to multiple hosts[TODO: link?]. Important note here:
-  since HTTP/2 connections are persistant, choosing right strategy for load
-  balancing is not so trivial as in HTTP/1 case, more about it (from gRPC
-  standpoint) below.
-- bidirectional streams. Since each http request/response could be splitted into
-  multiple frames, the order in which the frames delivered by client/server
-  becomes perfomance consideration, hence streams could be assigned &ldquo;priority&rdquo;
-  with value from 1 to 256 and be dependant on each over.
-- headers compression. Since sessions are persistent, server could simply
-  &ldquo;memorize&rdquo; headers and reuse them for following requests.</p>
+reduce latency between communication endpoints, such as:</p>
+
+<ul>
+<li><p>request multiplexing, which is, basically, using single TCP connection per
+origin for requests to multiple hosts[TODO: link?]. Important note here:
+since HTTP/2 connections are persistant, choosing right strategy for load
+balancing is not so trivial as in HTTP/1 case, more about it (from gRPC
+standpoint) below.</p></li>
+
+<li><p>bidirectional streams. Since each http request/response could be splitted into
+multiple frames, the order in which the frames delivered by client/server
+becomes perfomance consideration, hence streams could be assigned &ldquo;priority&rdquo;
+with value from 1 to 256 and be dependant on each over.</p></li>
+
+<li><p>headers compression. Since sessions are persistent, server could simply
+&ldquo;memorize&rdquo; headers and reuse them for following requests.</p></li>
+</ul>
 
 <p>Probably, most notable perfomance increase was experiences by end clients (such
 as browsers). If your setup is simply nginx as reverse proxy with fastcgi, uwsgi
@@ -271,26 +276,31 @@ still possible, but much less likely. Designing fault tolerant systems using
 proto is simpler, e.g. <a href="https://github.com/nilslice/protolock">protolock</a>. <a href="https://www.beautifulcode.co/blog/88-backward-and-forward-compatibility-protobuf-versioning-serializa">More
 about gRPC api versioning.</a></p>
 
-<p>cons:
-- requires some change in reasoning about architecture &amp; code. gRPC uses golang
-  like zero values and all fields are optional by default (starting from third
-  version), but what&rsquo;s definetly a good thing, <a href="https://capnproto.org/faq.html#how-do-i-make-a-field-required-like-in-protocol-buffers">explanation is
-  here</a>.
-  Also, streams is not so easy to adopt, but pays well if used properly (e.g.
-  lambda architecture <a href="https://en.wikipedia.org/wiki/Lambda_architecture">&ldquo;handles massive quantities of data by taking advantage
-  of both batch and stream-processing
-  methods&rdquo;</a>, more on
-  <a href="https://www.oreilly.com/ideas/questioning-the-lambda-architecture">lambda</a>)
-- for go/java debugging is possible even for avarage hand developers, but if using
-  c/c++ ffi bindings for other languages you may encounter problems at some
-  point, and you need not to be scaried away by production grade c++ code in
-  order to find bug (or discover what that&rsquo;s a feature). [TODO: debugging using
-  channelz and sending json payload with curl via envoy]
-- any technology/framework incroduced in your stack increases entry threshold
-  for newcomers and going for &ldquo;hyped and fashionable tech&rdquo; is always bad,
-  regardless of technology itself. Thumb rule here is simple: try it, play
-  around, understand it, know it&rsquo;s weaknesses and which problem you&rsquo;re trying to
-  solve. Don&rsquo;t get yourself into <a href="https://en.wikipedia.org/wiki/Hype_cycle">hype cycle</a>.</p>
+<p>cons:</p>
+
+<ul>
+<li><p>requires some change in reasoning about architecture &amp; code. gRPC uses golang
+like zero values and all fields are optional by default (starting from third
+version), but what&rsquo;s definetly a good thing, <a href="https://capnproto.org/faq.html#how-do-i-make-a-field-required-like-in-protocol-buffers">explanation is
+here</a>.
+Also, streams is not so easy to adopt, but pays well if used properly (e.g.
+lambda architecture <a href="https://en.wikipedia.org/wiki/Lambda_architecture">&ldquo;handles massive quantities of data by taking advantage
+of both batch and stream-processing
+methods&rdquo;</a>, more on
+<a href="https://www.oreilly.com/ideas/questioning-the-lambda-architecture">lambda</a>)</p></li>
+
+<li><p>for go/java debugging is possible even for avarage hand developers, but if using
+c/c++ ffi bindings for other languages you may encounter problems at some
+point, and you need not to be scaried away by production grade c++ code in
+order to find bug (or discover what that&rsquo;s a feature). [TODO: debugging using
+channelz and sending json payload with curl via envoy]</p></li>
+
+<li><p>any technology/framework incroduced in your stack increases entry threshold
+for newcomers and going for &ldquo;hyped and fashionable tech&rdquo; is always bad,
+regardless of technology itself. Thumb rule here is simple: try it, play
+around, understand it, know it&rsquo;s weaknesses and which problem you&rsquo;re trying to
+solve. Don&rsquo;t get yourself into <a href="https://en.wikipedia.org/wiki/Hype_cycle">hype cycle</a>.</p></li>
+</ul>
 
 <p>You need to be sure what everyone you&rsquo;re working with would go <em>faster</em> with
 gRPC, not slower. Increasing development speed for distrubuted systems &ndash; is
@@ -322,11 +332,13 @@ disagreeing on any point, feel free to contact me via email, twitter, reddit
 
 <h1 id="references">References</h1>
 
-<p>[1] <a href="https://www.amazon.com/Computer-Networks-Andrew-S-Tanenbaum-ebook/dp/B006Y1BKGC">Andrew S. Tanenbaum, &ldquo;Computer Networks&rdquo;</a>
-[2] <a href="https://en.wikipedia.org/wiki/List_of_network_protocols_(OSI_model)#Layer_7_(Application_Layer)">OSI model</a>
-[3] <a href="https://www.youtube.com/watch?v=spUNpyF58BY">Fourier series explanation by 3Blue1Brown</a>
-[4] <a href="https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem">Nyquist-Shannon sampling theorem</a>
-[5] <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing">Fallacies of distributed computing</a></p>
+<ol>
+<li><a href="https://www.amazon.com/Computer-Networks-Andrew-S-Tanenbaum-ebook/dp/B006Y1BKGC">Andrew S. Tanenbaum, &ldquo;Computer Networks&rdquo;</a></li>
+<li><a href="https://en.wikipedia.org/wiki/List_of_network_protocols_(OSI_model)#Layer_7_(Application_Layer)">OSI model</a></li>
+<li><a href="https://www.youtube.com/watch?v=spUNpyF58BY">Fourier series explanation by 3Blue1Brown</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem">Nyquist-Shannon sampling theorem</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing">Fallacies of distributed computing</a></li>
+</ol>
 
 <p>FIXME:
 [6] <a href="https://nptel.ac.in/courses/117106116/24">https://nptel.ac.in/courses/117106116/24</a>
