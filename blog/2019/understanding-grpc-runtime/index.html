@@ -46,46 +46,21 @@
 		<p class="meta">Reading time: 10 minutes; Posted on <span class="postdate">08. August 2019</span></p>
 
 
-		<div class="post-content"><p>Suppose you have a problem: in order to use hyped communication framework,
-called &ldquo;gRPC&rdquo;, you need to be familural with it&rsquo;s runtime, but networking
-internals is terrifyingly complicated. Here&rsquo;s my try to dig threw it&rsquo;s internals
-and design decisions in order to build complete understanding of gRPC internals
-&amp; design decisions. I&rsquo;ve also skimmed through the Tanenbaum&rsquo;s book about
-networks to describe everything gRPC hides behind abstractions.</p>
-
-<!-- Suppose you have a problem: if you're living in 21th century and building -->
-
-<!-- something related to computers, starting from simple static site with html -->
-
-<!-- pages and ending with software behind SpaceX rockets, at some point, you're -->
-
-<!-- going interact with network. And if you want to became *good* at whatever you're -->
-
-<!-- doing, you *need* to have some level of understanding how does networks work -->
-
-<!-- internally. But the actual problem is: networks are terrifyingly complicated. -->
-
-<!-- In hindsight I understood what *actual* topic of this blog was to dig threw gRPC -->
-
-<!-- internals and design decisions, in order to answer the question: "Why does gRPC -->
-
-<!-- runtime is so large?", but in order to build complete understanding "from ground -->
-
-<!-- truth" I've also skimmed from Tanenbaum's book and written a bunch of simple -->
-
-<!-- servers on C with libevent & evhhtp & nghttp2. -->
-
-<p>NOTE: I&rsquo;m terrible in job estimations, and if you&rsquo;re reading this, what means
-what I skipped code examples at all.</p>
+		<div class="post-content"><p>Suppose you have a problem: in order to use new hyped shining &ldquo;gRPC&rdquo;
+communication framework, you need to be familural with it&rsquo;s runtime, but
+networking internals is terrifyingly complicated. Here&rsquo;s the result of my
+digging in source code presented in text form, written in order to build
+complete understanding of gRPC internals and design decisions and today&rsquo;s
+networking stack.</p>
 
 <h1 id="foreword">Foreword</h1>
 
-<p>I want to build map of everything gRPC related, starting from networking layers
-and ending with source code walkthrew.</p>
+<p>Easiest way to present knowladge is map, <a href="https://wiki.lesswrong.com/wiki/Map_and_Territory">as founding fathers taught</a>.</p>
 
-<p>Since what I want to describe here is a &ldquo;map&rdquo;, I&rsquo;m not planning to re-write
-every text from the internet. Basically, is just a bunch of references to
-other people (often better) maps glue together by me with some code examples.</p>
+<p>Since what I want to have initially is map of networking internals, I&rsquo;m not
+planning to re-write every text from the internet. Basically, is just a bunch of
+references to other people (often better) maps glue together by me with some
+code examples.</p>
 
 <p>If your innermost desire is to be drown in theoretical detals, you probably
 should start with Tanenbaum&rsquo;s &ldquo;Computer Networks&rdquo; [1]. I&rsquo;ll try to focus on
@@ -94,13 +69,17 @@ practical parts with rare references to this never aging classics.</p>
 <h1 id="brief-overview-of-networking-layers">Brief overview of networking layers</h1>
 
 <p>Feel free to skip to the next section if you could repeat from memory OSI
-specification, know about /dev/net/tap or could write tcp proxy without any
-googling.</p>
+specification, know about linux&rsquo;s /dev/net/tap or could write tcp proxy without
+any googling.</p>
 
 <p>The most popular way to describe network protocols is Open Systems
 Interconnection (OSI for short) model[2], developed by
 International Organization for Standardization (abbreviated as ISO for some
-reason). You probably saw this picture: [TODO any osi specification illustration].</p>
+reason). You probably saw something simular to this picture:</p>
+
+<p><img src="https://hqhs.github.io/img/osi.jpg" /></p>
+
+<p>Yup, what&rsquo;s basically it.</p>
 
 <p>Everything you need to know about L1 (the transport layer) is what it&rsquo;s based on Fourier
 series[3] and even a perfect channel has a finite transmission capacity[4].</p>
@@ -119,51 +98,97 @@ the way to the destination. Hence all routing (finding physical MAC adress given
 ip) is done here.</p>
 
 <p>From software developer perspective, on linux L2/L3 levels could be accessed
-using /dev/net/tap file descriptor (what is file descriptor you could read
-here [TODO]). And how to code a TCP/IP stack is explained
+using /dev/net/tap file descriptor (what is file descriptor you could read on
+<a href="https://stackoverflow.com/questions/5256599/what-are-file-descriptors-explained-in-simple-terms">stackoverflow</a>
+or <a href="https://en.wikipedia.org/wiki/File_descriptor">wiki</a>). And how to code
+yourself a TCP/IP stack is explained
 <a href="https://www.saminiir.com/lets-code-tcp-ip-stack-1-ethernet-arp/">here</a>.</p>
 
-<p>L4 (The transport protocol) is layer where mind bending stuff happens. There&rsquo;s two
-main transport protocols: TCP &amp; UDP. UDP is commonly used in time-sensitive
+<p>L4 (The transport protocol) is layer where mind bending stuff happens. There&rsquo;s
+two main transport protocols: TCP &amp; UDP. UDP is commonly used in time-sensitive
 communications where occasionaly dropping packets is better then waiting, e.g.
-voice &amp; video traffic, online games, DNS, NTP, and TCP is for everything
-else. Sidecars (for service meshes) and proxies (TODO find appropriate
-definitions for hipster terminology) sometimes could
-operate on L4 layer, (for example, Envoy&rsquo;s tcp proxy <a href="https://github.com/envoyproxy/envoy/blob/56d03e0bd106e933ece6201439bbf4d4208f39a5/source/common/tcp_proxy/tcp_proxy.h#L174">class definition</a> and
+voice &amp; video traffic, online games, DNS, NTP, and TCP is for everything else.
+Sidecars (for service meshes) and proxies (definitions for hipster&rsquo;s terminology
+by
+<a href="https://www.redhat.com/en/topics/microservices/what-is-a-service-mesh">redhat</a>
+or <a href="https://www.nginx.com/blog/what-is-a-service-mesh/">nginx authors</a>)
+sometimes could operate on L4 layer, (for example, Envoy&rsquo;s tcp proxy <a href="https://github.com/envoyproxy/envoy/blob/56d03e0bd106e933ece6201439bbf4d4208f39a5/source/common/tcp_proxy/tcp_proxy.h#L174">class
+definition</a>
+and
 <a href="https://github.com/envoyproxy/envoy/blob/56d03e0bd106e933ece6201439bbf4d4208f39a5/source/common/tcp_proxy/tcp_proxy.cc#L173">implementation</a>).</p>
 
 <p>According to OSI where&rsquo;s 2 more layers before &ldquo;Application level&rdquo;, whereas
 Tanenbaum skipped L5 &amp; L6 (session and presentations layes accordingly)
 altogether. Their details are out of the scope of this blog, besides fact what
-ssl/tls (SSL is predecessor of TLS) [TODO: link] encryption is done where.</p>
+ssl/tls (<a href="https://security.stackexchange.com/a/5127">SSL is predecessor of TLS</a>)
+encryption is done where.</p>
 
 <p>Networking is layered set of thick abstractions made by humans, where every part
 could fail at some point. By &ldquo;every part&rdquo; I mean &ldquo;EVERYTHING&rdquo;, starting from
 single network card in particular server ending with whole datacenter outage.
 Takeaway message is simple: network is not reliable[5], and at some point you
-should deal with it.</p>
+should deal with it. I&rsquo;m sure what the best example for unreliability is this
+quote from traceroute man page:</p>
+
+<pre><code class="language-bash">A more interesting example is:
+
+[yak 72]% traceroute allspice.lcs.mit.edu.
+traceroute to allspice.lcs.mit.edu (18.26.0.115), 64 hops max
+1  helios.ee.lbl.gov (128.3.112.1)  0 ms  0 ms  0 ms
+2  lilac-dmc.Berkeley.EDU (128.32.216.1)  19 ms  19 ms  19 ms
+3  lilac-dmc.Berkeley.EDU (128.32.216.1)  39 ms  19 ms  19 ms
+4  ccngw-ner-cc.Berkeley.EDU (128.32.136.23)  19 ms  39 ms  39 ms
+5  ccn-nerif22.Berkeley.EDU (128.32.168.22)  20 ms  39 ms  39 ms
+6  128.32.197.4 (128.32.197.4)  59 ms  119 ms  39 ms
+7  131.119.2.5 (131.119.2.5)  59 ms  59 ms  39 ms
+8  129.140.70.13 (129.140.70.13)  80 ms  79 ms  99 ms
+9  129.140.71.6 (129.140.71.6)  139 ms  139 ms  159 ms
+10  129.140.81.7 (129.140.81.7)  199 ms  180 ms  300 ms
+11  129.140.72.17 (129.140.72.17)  300 ms  239 ms  239 ms
+12  * * *
+13  128.121.54.72 (128.121.54.72)  259 ms  499 ms  279 ms
+14  * * *
+15  * * *
+16  * * *
+17  * * *
+18  ALLSPICE.LCS.MIT.EDU (18.26.0.115)  339 ms  279 ms  279 ms
+
+Note that the gateways 12, 14, 15, 16 &amp; 17 hops away either don't send ICMP &quot;time
+exceeded&quot; messages or send them with a ttl too small to reach us.  14 - 17 are run-
+ning the MIT C Gateway code that doesn't send &quot;time exceeded&quot;s.  God only knows
+what's going on with 12.
+
+The silent gateway 12 in the above may be the result of a bug in the 4.[23] BSD net-
+work code (and its derivatives):  4.x (x &lt;= 3) sends an unreachable message using
+whatever ttl remains in the original datagram.  Since, for gateways, the remaining
+ttl is zero, the ICMP &quot;time exceeded&quot; is guaranteed to not make it back to us.  The
+behavior of this bug is slightly more interesting when it appears on the destination
+system:
+</code></pre>
 
 <p>If you&rsquo;re happy linux user, you probably know what everything described above is
-accessible with simple cli commands (from top of my head:
-netcat, ifconfig &amp; ip, tcpdump, ngrep, ping, dig, traceroute. Where&rsquo;re dosens of
-them[TODO: link]), and having some experience or perseverance debugging is just
-matter of time.</p>
+accessible with simple cli commands (from top of my head: netcat, ifconfig &amp; ip,
+tcpdump, ngrep, ping, dig, traceroute. Where&rsquo;re literally dosens of them[TODO:
+link]), and if you have some experience or perseverance, debugging is just matter of
+time, but basic understanding of abstractions you&rsquo;re going to investigate is
+required anyway.</p>
 
 <p>Or you may not need to deal with such issues at all, nor encoutered them, or not
-even know they exist, but someone (let&rsquo;s say guy who develop AWS [TODO link] on
+even know they exist, but someone (let&rsquo;s say guys who develop kubernetes
+<a href="[https://github.com/shubheksha/kubernetes-internals#networking]">networking
+internals</a> on
 which any web app you made is running) down the stack must design fault tolerant
 systems.</p>
 
 <h1 id="transfering-data-over-tcp">Transfering data over tcp</h1>
 
 <p>If you already know differences between major HTTP versions, know about QUIC or
-saw bunch of different server implementations on C, feel free to skip to [TODO:
-link to next section]</p>
+saw bunch of different server implementations on C, feel free to skip to next
+section.</p>
 
-<p>Note what I&rsquo;m not going to write single word about encryption &amp; authorization,
-network topology and made a lot of simplifications in general. As of today most
-of internet communication (even between two servers in datacenter) does not look
-like simple client/server communication over single TCP socket.</p>
+<p>Note what networks almost never looked like simple client/server communication
+over single TCP socket, but I&rsquo;m going to write single word about ecryption &amp;
+authorization, network topology and made a lot of simplifications in general.</p>
 
 <p>So, suppose you want to create server which stores some data and allow clients
 to fetch it over network. Raw tcp is not a good fit: you&rsquo;ll probably ended up
@@ -199,11 +224,10 @@ introduced new incompatable binary framing level, and some optimizations to
 reduce latency between communication endpoints, such as:</p>
 
 <ul>
-<li><p>request multiplexing, which is, basically, using single TCP connection per
-origin for requests to multiple hosts[TODO: link?]. Important note here:
-since HTTP/2 connections are persistant, choosing right strategy for load
-balancing is not so trivial as in HTTP/1 case, more about it (from gRPC
-standpoint) below.</p></li>
+<li><p>request multiplexing, which is, basically, using single TCP connection for
+different requests. Important note here: since HTTP/2 connections are
+persistant, choosing right strategy for load balancing is not so trivial as in
+HTTP/1 case, more about it (from gRPC standpoint) below.</p></li>
 
 <li><p>bidirectional streams. Since each http request/response could be splitted into
 multiple frames, the order in which the frames delivered by client/server
@@ -223,8 +247,11 @@ More on this <a href="https://www.nginx.com/blog/7-tips-for-faster-http2-perform
 probably, because it&rsquo;s not so easy to do it well.</p>
 
 <p>Personally I found Golang code simplest to read, if interested, you could
-compare http/2 protocol implementation with http/1, or use any language of your
-choise. [TODO: c/c++, java, rust examples]</p>
+compare http/2 <a href="url:go-http2-server">server</a> or <a href="url:go-http2-client">client</a>
+implementation with http/1 <a href="url:go-http1-server">server</a> and
+<a href="url:go-http1-client">client</a>, or use any language of your choise.</p>
+
+<!-- [TODO: c/c++, java, rust examples] -->
 
 <h2 id="foreseeable-future">Foreseeable future</h2>
 
@@ -236,34 +263,27 @@ so called HTTP/3, or QUIC.</p>
 <h1 id="introducing-grpc">Introducing gRPC</h1>
 
 <p>Actually, gRPC consists of many different projects. Protobuf used by default for
-encoding/decoding (optional, you may use json). Basically, it could be
-represented as follows:</p>
-
-<p>service logic code &lt;- interface generated by protoc from definitions &lt;- used by
-http/2 server implementation, which communicates with clients with data encoded
-by protobuf to binary format and translated as http/2 frames. [TODO: rewrite
-this nonsence]</p>
+encoding/decoding (optional, you may use json). Basically, for every supported
+language, except Golang and Java, it looks as follows:</p>
 
 <p><img src="https://hqhs.github.io/img/grpc-core-stack.svg" /></p>
 
 <p><a href="https://grpc.io/blog/grpc-stacks/">Image source.</a></p>
 
-<h2 id="understanding-runtime">Understanding runtime</h2>
-
-<p>Some languages has their own implementations of protobuf/ Golang and Java has
-their own runtimes, and everything else is based on C/C++ implementations (using
-FFI bindings). So, why does gRPC runtime <em>seems</em> so large and complicated?
-Original developers at google could not allow themselfes to use someone&rsquo;s own
+<p>So, why does gRPC runtime <em>seems</em> so large and complicated?
+Original developers at google could not allow themselfes to rely on someone&rsquo;s own
 http/2 implementation, so they write their own &ndash; what&rsquo;s part one of runtime.
-gRPC uses protobuf by default, and any good language independent
+gRPC uses protobuf by default, and any good language independent universal data
 encoding/decoding library which optimized for memory usage is not so easy to
-implement. [TODO: link to site where developers describe how protobuf does not
-need to decode full message in order to fetch some data]. And gRPC is so much
-more! It has authorization, compression (you may use gzip if want to, lz4
-support may be added in future), connection timeouts (so called deadlines), eazy
-to use bidirectional streems (imagine implementing this on your own), request
-metadata, middleware (with pluggable validators) etc. etc. It has large
-<a href="https://github.com/grpc-ecosystem">ecosystem</a> in general.</p>
+implement.
+<!-- [TODO: link to site where developers describe how protobuf does not need to -->
+<!-- decode full message in order to fetch some data] --></p>
+
+<p>And gRPC is so much more! It has authorization, compression (you may use gzip if
+want to, lz4 support may be added in future), connection timeouts (so called
+deadlines), eazy to use bidirectional streems (imagine implementing this on your
+own), request metadata, middleware (with pluggable validators) etc. etc. It has
+large <a href="https://github.com/grpc-ecosystem">ecosystem</a> in general.</p>
 
 <h2 id="pros-cons">pros/cons</h2>
 
@@ -342,7 +362,12 @@ disagreeing on any point, feel free to contact me via email, twitter, reddit
 
 <p>FIXME:
 [6] <a href="https://nptel.ac.in/courses/117106116/24">https://nptel.ac.in/courses/117106116/24</a>
-[3] <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing#cite_note-8-Fallacies-1">Fallacies of distributed computing</a></p></div>
+[3] <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing#cite_note-8-Fallacies-1">Fallacies of distributed computing</a></p>
+
+<p><a href="https://elixir.bootlin.com/linux/latest/source/drivers/net/ethernet/intel/e100.c">https://elixir.bootlin.com/linux/latest/source/drivers/net/ethernet/intel/e100.c</a>
+<a href="http://beej.us/guide/bgnet/html/multi/index.html">http://beej.us/guide/bgnet/html/multi/index.html</a>
+<a href="https://www.cs.bgu.ac.il/~mahlert/TCPIP_Implementation/TCPIP_Implementation.pdf">https://www.cs.bgu.ac.il/~mahlert/TCPIP_Implementation/TCPIP_Implementation.pdf</a>
+<a href="https://www.envoyproxy.io/learn/service-mesh">https://www.envoyproxy.io/learn/service-mesh</a></p></div>
 
 	</article>
 
