@@ -17,12 +17,10 @@
       <pubDate>Thu, 08 Aug 2019 10:00:00 +0300</pubDate>
       
       <guid>https://hqhs.github.io/blog/2019/understanding-grpc-runtime/</guid>
-      <description>&lt;p&gt;Suppose you have a problem: in order to use new hyped shining &amp;ldquo;gRPC&amp;rdquo;
-communication framework, you need to be familural with it&amp;rsquo;s runtime, but
-networking internals is terrifyingly complicated. Here&amp;rsquo;s the result of my
-digging in source code presented in text form, written in order to build
-complete understanding of gRPC internals and design decisions and today&amp;rsquo;s
-networking stack.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Suppose you have a problem: in order to use new hyped shining &amp;ldquo;gRPC&amp;rdquo; communication framework, you need to be familural
+with it&amp;rsquo;s runtime, but networking internals is terrifyingly complicated. Here&amp;rsquo;s the result of my digging in source code
+presented in text form, written in order to build complete understanding of gRPC internals and design decisions and
+today&amp;rsquo;s networking stack.&lt;/p&gt;</description>
     </item>
     
     <item>
