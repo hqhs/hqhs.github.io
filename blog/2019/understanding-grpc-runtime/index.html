@@ -43,7 +43,7 @@
 				
 	<article class="post">
 		<h1><a href="https://hqhs.github.io/blog/2019/understanding-grpc-runtime/">Understanding gRPC runtime</a> </h1>
-		<p class="meta">Reading time: 10 minutes; Posted on <span class="postdate">08. August 2019</span></p>
+		<p class="meta">Reading time: 12 minutes; Posted on <span class="postdate">08. August 2019</span></p>
 
 
 		<div class="post-content"><p>Suppose you have a problem: in order to use new hyped shining &ldquo;gRPC&rdquo;
@@ -55,7 +55,8 @@ networking stack.</p>
 
 <h1 id="foreword">Foreword</h1>
 
-<p>Easiest way to present knowladge is map, <a href="https://wiki.lesswrong.com/wiki/Map_and_Territory">as founding fathers taught</a>.</p>
+<p>Easiest way to present knowladge is map, <a href="url:map-and-territory">as founding fathers
+taught</a>.</p>
 
 <p>Since what I want to have initially is map of networking internals, I&rsquo;m not
 planning to re-write every text from the internet. Basically, is just a bunch of
@@ -63,8 +64,9 @@ references to other people (often better) maps glue together by me with some
 code examples.</p>
 
 <p>If your innermost desire is to be drown in theoretical detals, you probably
-should start with Tanenbaum&rsquo;s &ldquo;Computer Networks&rdquo; [1]. I&rsquo;ll try to focus on
-practical parts with rare references to this never aging classics.</p>
+should start with Tanenbaum&rsquo;s <a href="url:tanenbaum-networks">&ldquo;Computer Networks&rdquo;</a>.
+I&rsquo;ll try to focus on practical parts with rare references to this never aging
+classics.</p>
 
 <h1 id="brief-overview-of-networking-layers">Brief overview of networking layers</h1>
 
@@ -73,7 +75,7 @@ specification, know about linux&rsquo;s /dev/net/tap or could write tcp proxy wi
 any googling.</p>
 
 <p>The most popular way to describe network protocols is Open Systems
-Interconnection (OSI for short) model[2], developed by
+Interconnection (OSI for short) <a href="url:osi-model">model</a>, developed by
 International Organization for Standardization (abbreviated as ISO for some
 reason). You probably saw something simular to this picture:</p>
 
@@ -81,8 +83,9 @@ reason). You probably saw something simular to this picture:</p>
 
 <p>Yup, what&rsquo;s basically it.</p>
 
-<p>Everything you need to know about L1 (the transport layer) is what it&rsquo;s based on Fourier
-series[3] and even a perfect channel has a finite transmission capacity[4].</p>
+<p>Everything you need to know about L1 (the transport layer) is what it&rsquo;s based on
+Fourier series (<a href="url:fourier-series">explanation</a>) and even a perfect channel
+has a finite transmission capacity (<a href="url:nyquist-shannon-theorem">source</a>).</p>
 
 <p>Essential property of L2 (the data link layer) connection between two machines
 is that the bits are delivered is exacly the same order in which they are sent.
@@ -109,13 +112,10 @@ two main transport protocols: TCP &amp; UDP. UDP is commonly used in time-sensit
 communications where occasionaly dropping packets is better then waiting, e.g.
 voice &amp; video traffic, online games, DNS, NTP, and TCP is for everything else.
 Sidecars (for service meshes) and proxies (definitions for hipster&rsquo;s terminology
-by
-<a href="https://www.redhat.com/en/topics/microservices/what-is-a-service-mesh">redhat</a>
-or <a href="https://www.nginx.com/blog/what-is-a-service-mesh/">nginx authors</a>)
-sometimes could operate on L4 layer, (for example, Envoy&rsquo;s tcp proxy <a href="https://github.com/envoyproxy/envoy/blob/56d03e0bd106e933ece6201439bbf4d4208f39a5/source/common/tcp_proxy/tcp_proxy.h#L174">class
-definition</a>
-and
-<a href="https://github.com/envoyproxy/envoy/blob/56d03e0bd106e933ece6201439bbf4d4208f39a5/source/common/tcp_proxy/tcp_proxy.cc#L173">implementation</a>).</p>
+by <a href="url:redhat-service-mesh">redhat</a> or <a href="url:nginx-service-mesh">nginx authors</a>)
+sometimes could operate on L4 layer, (for example, Envoy&rsquo;s tcp proxy <a href="url:envoy-tcp-proxy-definition">class
+definition</a> and
+<a href="url:envoy-tcp-proxy-implementation">implementation</a>).</p>
 
 <p>According to OSI where&rsquo;s 2 more layers before &ldquo;Application level&rdquo;, whereas
 Tanenbaum skipped L5 &amp; L6 (session and presentations layes accordingly)
@@ -126,8 +126,10 @@ encryption is done where.</p>
 <p>Networking is layered set of thick abstractions made by humans, where every part
 could fail at some point. By &ldquo;every part&rdquo; I mean &ldquo;EVERYTHING&rdquo;, starting from
 single network card in particular server ending with whole datacenter outage.
-Takeaway message is simple: network is not reliable[5], and at some point you
-should deal with it. I&rsquo;m sure what the best example for unreliability is this
+Takeaway message is simple: network is not reliable, and at some point you
+should deal with it. Thinking overwise is such a common misconception, what it&rsquo;s
+even mentioned at <a href="url:distributed-computing">wikipedia page</a> about fallacies of
+distributed computing. I&rsquo;m sure what the best example for unreliability is this
 quote from traceroute man page:</p>
 
 <pre><code class="language-bash">A more interesting example is:
@@ -168,17 +170,17 @@ system:
 
 <p>If you&rsquo;re happy linux user, you probably know what everything described above is
 accessible with simple cli commands (from top of my head: netcat, ifconfig &amp; ip,
-tcpdump, ngrep, ping, dig, traceroute. Where&rsquo;re literally dosens of them[TODO:
-link]), and if you have some experience or perseverance, debugging is just matter of
-time, but basic understanding of abstractions you&rsquo;re going to investigate is
-required anyway.</p>
+tcpdump, ngrep, ping, dig, traceroute. Where&rsquo;re literally dosens of them), and
+if you have some experience or perseverance, debugging is just matter of time,
+but basic understanding of abstractions you&rsquo;re going to investigate is required
+anyway.</p>
 
-<p>Or you may not need to deal with such issues at all, nor encoutered them, or not
-even know they exist, but someone (let&rsquo;s say guys who develop kubernetes
-<a href="[https://github.com/shubheksha/kubernetes-internals#networking]">networking
-internals</a> on
-which any web app you made is running) down the stack must design fault tolerant
-systems.</p>
+<!-- [TODO: link to somewhat complete set of linux networking tools] -->
+
+<p>Or you may not need to deal with such issues at all, nor encoutered them, or
+not even know they exist, but someone (let&rsquo;s say guys who develop kubernetes
+<a href="url:k8s-networking">networking internals</a> on which any web app you made is
+running) down the stack must design fault tolerant systems.</p>
 
 <h1 id="transfering-data-over-tcp">Transfering data over tcp</h1>
 
@@ -253,12 +255,19 @@ implementation with http/1 <a href="url:go-http1-server">server</a> and
 
 <!-- [TODO: c/c++, java, rust examples] -->
 
+<p>As always with new and technicly complex technologies, HTTP/2 has list of major
+vulnerabilities already <a href="url:http2-cves">discovered</a> (as of August 2019), and
+yet to be found. Just keep in mind what every popular and evolving project has
+some. Here&rsquo;s <a href="url:http2-vuln-analysis">list</a> of affected products.</p>
+
 <h2 id="foreseeable-future">Foreseeable future</h2>
 
 <p>And discussion around HTTP/3 already started to heat. Careful readers will
-notice what for 20 years straight TCP practically does not change at all, but
-it has it&rsquo;s own problems[TODO: link], which some companies tries to address in
-so called HTTP/3, or QUIC.</p>
+notice what for 20 years straight TCP practically does not change at all, but it
+has it&rsquo;s own problems, which some companies tries to address in so called
+HTTP/3, or QUIC. It have been developed using agile techniques, hence more then
+12 versions of RFC proposal, cloudflare blog has good <a href="url:road-to-quic">intro</a>
+to QUIC, or rust implementation unnouncment <a href="url:rust-quic">post</a>.</p>
 
 <h1 id="introducing-grpc">Introducing gRPC</h1>
 
@@ -270,20 +279,51 @@ language, except Golang and Java, it looks as follows:</p>
 
 <p><a href="https://grpc.io/blog/grpc-stacks/">Image source.</a></p>
 
+<p>Golang gRPC stack:</p>
+
+<p><img src="https://hqhs.github.io/img/grpc-go-stack.svg" /></p>
+
+<p><a href="https://grpc.io/blog/grpc-stacks/">Same source.</a> Java&rsquo;s practically has the same.</p>
+
 <p>So, why does gRPC runtime <em>seems</em> so large and complicated?
 Original developers at google could not allow themselfes to rely on someone&rsquo;s own
 http/2 implementation, so they write their own &ndash; what&rsquo;s part one of runtime.
-gRPC uses protobuf by default, and any good language independent universal data
-encoding/decoding library which optimized for memory usage is not so easy to
-implement.
-<!-- [TODO: link to site where developers describe how protobuf does not need to -->
-<!-- decode full message in order to fetch some data] --></p>
+Also protobuf is good, language agnostic, universal data encoding/decoding library
+optimized for memory usage, and it&rsquo;s not so easy to implement &ndash; again, part of runtime.</p>
 
 <p>And gRPC is so much more! It has authorization, compression (you may use gzip if
 want to, lz4 support may be added in future), connection timeouts (so called
 deadlines), eazy to use bidirectional streems (imagine implementing this on your
-own), request metadata, middleware (with pluggable validators) etc. etc. It has
+own), request metadata, middleware (with pluggable validators) etc. It has
 large <a href="https://github.com/grpc-ecosystem">ecosystem</a> in general.</p>
+
+<h2 id="reading-source">reading source</h2>
+
+<p>Time spent reading gRPC source code could be exciting experience, here&rsquo;s github
+<a href="grpc:simple-example">repo</a> with basic golang setup. Understanding source &ldquo;as it
+is&rdquo; without particular purpose to change something is separate ability to gain,
+and you&rsquo;re advised to at least finish this post and make yourself familural with
+the docs.</p>
+
+<h2 id="routing">routing</h2>
+
+<p>Because of all of HTTP/2 goodies described above, routing in gRPC is not as
+trivial as it was in HTTP/1 times. Basically, load balancing could be done at
+client side (using service mesh, also called as lookaside load balancing) or
+server side (using proxy), and implemented at l3/l4 transport layers or at
+application level. Usage scenarious has following properties:</p>
+
+<ul>
+<li>client trustworthiness</li>
+<li>resource utilization in proxy requirements</li>
+<li>latency</li>
+<li>storage or compute affinity</li>
+</ul>
+
+<p>You may stop for a minute and thinks, which kind of deployments has which
+properties, and how you would setup routing in each case. Or read gRPC
+<a href="grpc:loadbalancing">tutorial</a> on topic, and simplest kubernetes
+<a href="grpc:k8c-routing">solution</a> may be useful, too</p>
 
 <h2 id="pros-cons">pros/cons</h2>
 
@@ -293,27 +333,24 @@ at contract compliances. You may use jsonschema or simular validators, but it
 what case you have multiple sources: one is your code, and other is schema
 definition. In gRPC case, code is generated from definition, and human errors
 still possible, but much less likely. Designing fault tolerant systems using
-proto is simpler, e.g. <a href="https://github.com/nilslice/protolock">protolock</a>. <a href="https://www.beautifulcode.co/blog/88-backward-and-forward-compatibility-protobuf-versioning-serializa">More
+proto is simpler, e.g. <a href="https://github.com/nilslice/protolock">protolock</a>. <a href="url:api-versioning">More
 about gRPC api versioning.</a></p>
 
-<p>cons:</p>
+<p>So, cons:</p>
 
 <ul>
-<li><p>requires some change in reasoning about architecture &amp; code. gRPC uses golang
-like zero values and all fields are optional by default (starting from third
-version), but what&rsquo;s definetly a good thing, <a href="https://capnproto.org/faq.html#how-do-i-make-a-field-required-like-in-protocol-buffers">explanation is
-here</a>.
-Also, streams is not so easy to adopt, but pays well if used properly (e.g.
-lambda architecture <a href="https://en.wikipedia.org/wiki/Lambda_architecture">&ldquo;handles massive quantities of data by taking advantage
-of both batch and stream-processing
-methods&rdquo;</a>, more on
-<a href="https://www.oreilly.com/ideas/questioning-the-lambda-architecture">lambda</a>)</p></li>
+<li><p>requires some change in reasoning about architecture &amp; code. gRPC starting
+from 3th version uses golang like zero values and all fields are optional by
+default (starting from third version), but what&rsquo;s definetly a good thing,
+<a href="url:required-fields">explanation is here</a>. Also, streams is not so easy to
+adopt, but pays well if used properly (e.g. lambda architecture <a href="url:wiki-lambda">&ldquo;handles
+massive quantities of data by taking advantage of both batch and
+stream-processing methods&rdquo;</a>, more on <a href="url:lambda">lambda</a>).</p></li>
 
-<li><p>for go/java debugging is possible even for avarage hand developers, but if using
-c/c++ ffi bindings for other languages you may encounter problems at some
-point, and you need not to be scaried away by production grade c++ code in
-order to find bug (or discover what that&rsquo;s a feature). [TODO: debugging using
-channelz and sending json payload with curl via envoy]</p></li>
+<li><p>in case of c/c++ ffi bindings you may encounter problems at some point, and
+you need not to be scaried away by production grade c++ code in order to
+determine root cause of problem. It&rsquo;s simpler for go/java, but requires
+reading source anyway. Try out <a href="url:channelz">channelz</a> if needed.</p></li>
 
 <li><p>any technology/framework incroduced in your stack increases entry threshold
 for newcomers and going for &ldquo;hyped and fashionable tech&rdquo; is always bad,
@@ -322,52 +359,46 @@ around, understand it, know it&rsquo;s weaknesses and which problem you&rsquo;re
 solve. Don&rsquo;t get yourself into <a href="https://en.wikipedia.org/wiki/Hype_cycle">hype cycle</a>.</p></li>
 </ul>
 
-<p>You need to be sure what everyone you&rsquo;re working with would go <em>faster</em> with
-gRPC, not slower. Increasing development speed for distrubuted systems &ndash; is
-main purpose.</p>
+<p>You need to be sure what everyone you&rsquo;re working with today or will work in
+future, would go <em>faster</em> with gRPC, not slower. Increasing development speed
+must be main purpose. &ldquo;Development speed&rdquo; does not mean only &ldquo;speed of typing
+code&rdquo;. Debugging, adding new features or changing old ones <em>always</em> takes some
+part of development time, and you need to be sure those are accelerated, too.</p>
 
-<h2 id="todo-routing">TODO routing</h2>
+<p>Also, don&rsquo;t forget about simple truth: finding <em>good</em> developers is time and energy
+consuming process, even if you aren&rsquo;t working at third world country (such as
+Russia, whatever). Your project may not be what interesting to work on, you may
+not have enough money, you may not want to automate everything or just have bad
+luck finding right people.</p>
 
-<p>Because of all of goodies described above, routing in gRPC is not so trivial as
-it was in HTTP/1 times. <a href="https://grpc.io/blog/loadbalancing/">Here&rsquo;s</a> tutorial
-from official documentation, and simplest <a href="https://kubernetes.io/blog/2018/11/07/grpc-load-balancing-on-kubernetes-without-tears/">solution for
-kubernetes</a>.</p>
-
-<h2 id="it-probable-future-but-not-yet-industry-standard">It probable future, but not yet industry standard</h2>
-
-<p>At some point it could even replace REST in web, google already
-<a href="https://grpc.io/blog/state-of-grpc-web/">working</a> on browser clients, although
-many agree what they&rsquo;re not yet production ready.</p>
-
-<h1 id="quickly-introducing-twirp">Quickly introducing twirp</h1>
+<p>But at some point gRPC could even replace REST in web, google already
+<a href="url:state-of-grpc-web">working</a> on browser clients, although many agree what
+they&rsquo;re not yet production ready.</p>
 
 <p>So, if you not yet ready to adopt large gRPC ecosystem in your particular
 company, you may end up with <a href="https://github.com/twitchtv/twirp">twirp</a>,
-developed by guys from twitch.tv. Yet in my opinion moving to HTTP/2 is
+developed by guys from twitch.tv. Yet in my opinion moving to HTTP/2 looks
 inevitable at some point.</p>
 
-<p>What&rsquo;s all, thanks for reading! If you have some corrections, or find yourself
-disagreeing on any point, feel free to contact me via email, twitter, reddit
-[TODO: links].</p>
+<!-- TODO ## Bonus: Understanding protoc -->
 
-<h1 id="references">References</h1>
+<!-- https://nptel.ac.in/courses/117106116/24 -->
 
-<ol>
-<li><a href="https://www.amazon.com/Computer-Networks-Andrew-S-Tanenbaum-ebook/dp/B006Y1BKGC">Andrew S. Tanenbaum, &ldquo;Computer Networks&rdquo;</a></li>
-<li><a href="https://en.wikipedia.org/wiki/List_of_network_protocols_(OSI_model)#Layer_7_(Application_Layer)">OSI model</a></li>
-<li><a href="https://www.youtube.com/watch?v=spUNpyF58BY">Fourier series explanation by 3Blue1Brown</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem">Nyquist-Shannon sampling theorem</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing">Fallacies of distributed computing</a></li>
-</ol>
+<!-- http://beej.us/guide/bgnet/html/multi/index.html -->
 
-<p>FIXME:
-[6] <a href="https://nptel.ac.in/courses/117106116/24">https://nptel.ac.in/courses/117106116/24</a>
-[3] <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing#cite_note-8-Fallacies-1">Fallacies of distributed computing</a></p>
+<!-- https://www.cs.bgu.ac.il/~mahlert/TCPIP_Implementation/TCPIP_Implementation.pdf -->
 
-<p><a href="https://elixir.bootlin.com/linux/latest/source/drivers/net/ethernet/intel/e100.c">https://elixir.bootlin.com/linux/latest/source/drivers/net/ethernet/intel/e100.c</a>
-<a href="http://beej.us/guide/bgnet/html/multi/index.html">http://beej.us/guide/bgnet/html/multi/index.html</a>
-<a href="https://www.cs.bgu.ac.il/~mahlert/TCPIP_Implementation/TCPIP_Implementation.pdf">https://www.cs.bgu.ac.il/~mahlert/TCPIP_Implementation/TCPIP_Implementation.pdf</a>
-<a href="https://www.envoyproxy.io/learn/service-mesh">https://www.envoyproxy.io/learn/service-mesh</a></p></div>
+<!-- https://www.envoyproxy.io/learn/service-mesh -->
+
+<!-- foreword -->
+
+<!-- osi links -->
+
+<!-- http2 compared to http1 server/client implementation links -->
+
+<!-- quic -->
+
+<!-- grpc --></div>
 
 	</article>
 
